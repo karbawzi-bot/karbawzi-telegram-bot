@@ -1,5 +1,5 @@
 import telebot, os, random, json, time
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime
 
 TOKEN = os.environ.get('BOT_TOKEN', '8415766472:AAEWgokNh5qAlgds-1BdmmooPh6dXBKeF9w')
@@ -38,7 +38,7 @@ def save_data():
 def get_user(uid):
     uid=str(uid)
     if uid not in db["users"]:
-        db["users"][uid]={"lang":"fa","ref_code":f"ref{uid}","referred_by":None,"referrals_list":[],"claimed":{"free_account":False,"artery":False,"vivan":False,"combo":False}, "last_msg": None}
+        db["users"][uid]={"lang":"fa","ref_code":f"ref{uid}","referred_by":None,"referrals_list":[],"claimed":{"free_account":False,"artery":False,"vivan":False,"combo":False}, "last_msg": None, "current_menu": "main"}
         save_data()
     return db["users"][uid]
 def update_user(uid,data):
@@ -110,133 +110,161 @@ def get_text(key, lang, **kwargs):
         'update': {
             'fa': '🔄 در حال بروزرسانی',
             'en': fancy_text('🔄 Updating...')
-        }
+        },
+        'vip_title': {'fa': '💎 بخش VIP', 'en': fancy_text('💎 VIP Section')},
+        'free_title': {'fa': '🎁 بخش رایگان', 'en': fancy_text('🎁 Free Section')},
+        'gaming_title': {'fa': '🎮 بخش گیمینگ', 'en': fancy_text('🎮 Gaming Section')},
+        'dns_title': {'fa': '🌐 بخش DNS', 'en': fancy_text('🌐 DNS Section')},
+        'wireguard_title': {'fa': '🔐 بخش وایرگارد', 'en': fancy_text('🔐 Wireguard Section')},
+        'codm_title': {'fa': '🆓 بخش کالاف دیوتی', 'en': fancy_text('🆓 CODM Section')},
     }
     return texts.get(key, {}).get(lang, '').format(**kwargs)
 
+# ========== کیبوردهای ریپلی ==========
+
 def language_keyboard():
-    m = InlineKeyboardMarkup(row_width=2)
-    m.add(
-        InlineKeyboardButton("🇮🇷 فارسی", callback_data='lang_fa'),
-        InlineKeyboardButton("🇬🇧 English", callback_data='lang_en')
+    """کیبورد انتخاب زبان"""
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    markup.add(
+        KeyboardButton("🇮🇷 فارسی"),
+        KeyboardButton("🇬🇧 English")
     )
-    return m
+    return markup
 
 def main_menu_keyboard(lang):
-    m = InlineKeyboardMarkup(row_width=2)
+    """منوی اصلی با ریپلی کیبورد"""
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    
     if lang == 'fa':
         buttons = [
-            InlineKeyboardButton("💎 VIP", callback_data='menu_vip'),
-            InlineKeyboardButton("🎁 رایگان", callback_data='menu_free'),
-            InlineKeyboardButton("🎮 گیمینگ", callback_data='menu_gaming'),
-            InlineKeyboardButton("🌐 DNS", callback_data='menu_dns'),
-            InlineKeyboardButton("🔐 وایرگارد", callback_data='menu_wireguard'),
-            InlineKeyboardButton("🆓 کالاف", callback_data='menu_codm'),
-            InlineKeyboardButton("🌍 زبان", callback_data='change_lang'),
-            InlineKeyboardButton("📢 کانال‌ها", callback_data='channels')
+            KeyboardButton("💎 VIP"),
+            KeyboardButton("🎁 فایل رایگان"),
+            KeyboardButton("🎮 گیمینگ"),
+            KeyboardButton("🌐 DNS"),
+            KeyboardButton("🔐 وایرگارد"),
+            KeyboardButton("🆓 کالاف دیوتی"),
+            KeyboardButton("🌍 تغییر زبان"),
+            KeyboardButton("📢 کانال‌ها")
         ]
     else:
         buttons = [
-            InlineKeyboardButton(fancy_text("💎 VIP"), callback_data='menu_vip'),
-            InlineKeyboardButton(fancy_text("🎁 FREE"), callback_data='menu_free'),
-            InlineKeyboardButton(fancy_text("🎮 GAMING"), callback_data='menu_gaming'),
-            InlineKeyboardButton(fancy_text("🌐 DNS"), callback_data='menu_dns'),
-            InlineKeyboardButton(fancy_text("🔐 WIRE"), callback_data='menu_wireguard'),
-            InlineKeyboardButton(fancy_text("🆓 CODM"), callback_data='menu_codm'),
-            InlineKeyboardButton(fancy_text("🌍 LANGUAGE"), callback_data='change_lang'),
-            InlineKeyboardButton(fancy_text("📢 CHANNELS"), callback_data='channels')
+            KeyboardButton(fancy_text("💎 VIP")),
+            KeyboardButton(fancy_text("🎁 FREE")),
+            KeyboardButton(fancy_text("🎮 GAMING")),
+            KeyboardButton(fancy_text("🌐 DNS")),
+            KeyboardButton(fancy_text("🔐 WIREGUARD")),
+            KeyboardButton(fancy_text("🆓 CODM")),
+            KeyboardButton(fancy_text("🌍 CHANGE LANGUAGE")),
+            KeyboardButton(fancy_text("📢 CHANNELS"))
         ]
-    m.add(*buttons)
-    return m
+    
+    markup.add(*buttons)
+    return markup
 
-def build_category_menu(items, prefix, lang):
-    m = InlineKeyboardMarkup(row_width=2)
-    for k, v in items.items():
-        m.add(InlineKeyboardButton(v[lang], callback_data=f'{prefix}_{k}'))
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
-    return m
+def back_keyboard(lang):
+    """کیبورد برگشت به منوی اصلی"""
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
+    return markup
 
 def dns_keyboard(lang):
-    m = InlineKeyboardMarkup(row_width=2)
+    """کیبورد بخش DNS"""
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    
     if lang == 'fa':
-        m.add(
-            InlineKeyboardButton("📶 ایرانسل", callback_data='dns_operator_irancell'),
-            InlineKeyboardButton("📶 همراه اول", callback_data='dns_operator_mci')
-        )
-        m.add(
-            InlineKeyboardButton("📶 مخابرات", callback_data='dns_operator_mokhaberat'),
-            InlineKeyboardButton("📶 شاتل", callback_data='dns_operator_shatel')
-        )
-        m.add(
-            InlineKeyboardButton("🌍 عمومی", callback_data='dns_public'),
-            InlineKeyboardButton("🧪 تست رایگان", callback_data='dns_free')
-        )
+        buttons = [
+            KeyboardButton("📶 ایرانسل"),
+            KeyboardButton("📶 همراه اول"),
+            KeyboardButton("📶 مخابرات"),
+            KeyboardButton("📶 شاتل"),
+            KeyboardButton("🌍 DNS عمومی"),
+            KeyboardButton("🧪 تست رایگان"),
+            KeyboardButton("🔙 برگشت به منوی اصلی")
+        ]
     else:
-        m.add(
-            InlineKeyboardButton(fancy_text("📶 Irancell"), callback_data='dns_operator_irancell'),
-            InlineKeyboardButton(fancy_text("📶 MCI"), callback_data='dns_operator_mci')
-        )
-        m.add(
-            InlineKeyboardButton(fancy_text("📶 Mokhaberat"), callback_data='dns_operator_mokhaberat'),
-            InlineKeyboardButton(fancy_text("📶 Shatel"), callback_data='dns_operator_shatel')
-        )
-        m.add(
-            InlineKeyboardButton(fancy_text("🌍 Public"), callback_data='dns_public'),
-            InlineKeyboardButton(fancy_text("🧪 Free Test"), callback_data='dns_free')
-        )
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
-    return m
+        buttons = [
+            KeyboardButton(fancy_text("📶 Irancell")),
+            KeyboardButton(fancy_text("📶 MCI")),
+            KeyboardButton(fancy_text("📶 Mokhaberat")),
+            KeyboardButton(fancy_text("📶 Shatel")),
+            KeyboardButton(fancy_text("🌍 Public DNS")),
+            KeyboardButton(fancy_text("🧪 Free Test")),
+            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
+        ]
+    
+    markup.add(*buttons)
+    return markup
 
 def wireguard_keyboard(lang):
-    m = InlineKeyboardMarkup(row_width=2)
+    """کیبورد بخش وایرگارد"""
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    
     if lang == 'fa':
-        m.add(
-            InlineKeyboardButton("🔐 VPN", callback_data='wire_vpn'),
-            InlineKeyboardButton("🌐 DNS", callback_data='wire_dns')
-        )
+        buttons = [
+            KeyboardButton("🔐 VPN"),
+            KeyboardButton("🌐 DNS"),
+            KeyboardButton("🔙 برگشت به منوی اصلی")
+        ]
     else:
-        m.add(
-            InlineKeyboardButton(fancy_text("🔐 VPN"), callback_data='wire_vpn'),
-            InlineKeyboardButton(fancy_text("🌐 DNS"), callback_data='wire_dns')
-        )
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
-    return m
+        buttons = [
+            KeyboardButton(fancy_text("🔐 VPN")),
+            KeyboardButton(fancy_text("🌐 DNS")),
+            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
+        ]
+    
+    markup.add(*buttons)
+    return markup
+
+def category_keyboard(items, prefix, lang):
+    """کیبورد برای دسته‌بندی‌های مختلف (VIP, رایگان, گیمینگ)"""
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    
+    buttons = []
+    for k, v in items.items():
+        buttons.append(KeyboardButton(v[lang]))
+    
+    markup.add(*buttons)
+    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
+    return markup
 
 def codm_keyboard(lang, uid):
+    """کیبورد بخش کالاف دیوتی با اطلاعات وضعیت"""
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
     is_mem = is_member(uid)
     cnt = count_successful_referrals(uid)
     
-    m = InlineKeyboardMarkup(row_width=1)
-    
     if lang == 'fa':
-        free_text = f"🎮 اکانت رایگان {'✓' if is_mem else '✗'} | {cnt}/5"
-        artery_text = f"🔥 Artery {'✓' if is_mem else '✗'} | {cnt}/10"
-        vivan_text = f"✨ Vivan Harris {'✓' if is_mem else '✗'} | {cnt}/15"
+        free_text = f"🎮 اکانت رایگان {'✅' if is_mem else '❌'} | {cnt}/5"
+        artery_text = f"🔥 Artery {'✅' if is_mem else '❌'} | {cnt}/10"
+        vivan_text = f"✨ Vivan Harris {'✅' if is_mem else '❌'} | {cnt}/15"
         
-        m.add(InlineKeyboardButton(free_text, callback_data='codm_free'))
-        m.add(InlineKeyboardButton(artery_text, callback_data='codm_artery'))
-        m.add(InlineKeyboardButton(vivan_text, callback_data='codm_vivan'))
-        m.add(
-            InlineKeyboardButton("📋 لیست کمبو", callback_data='codm_combo'),
-            InlineKeyboardButton("🔗 لینک معرفی", callback_data='codm_referral')
-        )
+        buttons = [
+            KeyboardButton(free_text),
+            KeyboardButton(artery_text),
+            KeyboardButton(vivan_text),
+            KeyboardButton("📋 لیست کمبو"),
+            KeyboardButton("🔗 لینک معرفی"),
+            KeyboardButton("🔙 برگشت به منوی اصلی")
+        ]
     else:
-        free_text = fancy_text(f"🎮 Free Account {'✓' if is_mem else '✗'} | {cnt}/5")
-        artery_text = fancy_text(f"🔥 Artery {'✓' if is_mem else '✗'} | {cnt}/10")
-        vivan_text = fancy_text(f"✨ Vivan Harris {'✓' if is_mem else '✗'} | {cnt}/15")
+        free_text = fancy_text(f"🎮 Free Account {'✅' if is_mem else '❌'} | {cnt}/5")
+        artery_text = fancy_text(f"🔥 Artery {'✅' if is_mem else '❌'} | {cnt}/10")
+        vivan_text = fancy_text(f"✨ Vivan Harris {'✅' if is_mem else '❌'} | {cnt}/15")
         
-        m.add(InlineKeyboardButton(free_text, callback_data='codm_free'))
-        m.add(InlineKeyboardButton(artery_text, callback_data='codm_artery'))
-        m.add(InlineKeyboardButton(vivan_text, callback_data='codm_vivan'))
-        m.add(
-            InlineKeyboardButton(fancy_text("📋 Combo List"), callback_data='codm_combo'),
-            InlineKeyboardButton(fancy_text("🔗 Referral Link"), callback_data='codm_referral')
-        )
+        buttons = [
+            KeyboardButton(free_text),
+            KeyboardButton(artery_text),
+            KeyboardButton(vivan_text),
+            KeyboardButton(fancy_text("📋 Combo List")),
+            KeyboardButton(fancy_text("🔗 Referral Link")),
+            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
+        ]
     
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
-    return m
+    markup.add(*buttons)
+    return markup
 
-# دیکشنری‌های منوها
+# ========== دیکشنری‌های محتوا ==========
+
 vip_files = {
     'promax': {'fa': '🚀 ProMax', 'en': '🚀 ProMax'},
     'topvip': {'fa': '👑 TopVIP', 'en': '👑 TopVIP'}
@@ -245,13 +273,17 @@ free_files = {
     'free': {'fa': '🎁 فایل رایگان', 'en': '🎁 Free File'}
 }
 gaming_clips = {
-    'clip1': {'fa': '🎬 اسنیپر', 'en': '🎬 Sniper'},
-    'clip2': {'fa': '🔥 کلچ', 'en': '🔥 Clutch'}
+    'clip1': {'fa': '🎬 اسنیپر حرفه‌ای', 'en': '🎬 Pro Sniper'},
+    'clip2': {'fa': '🔥 کلچ ۱vs۵', 'en': '🔥 1vs5 Clutch'}
 }
-dns_public = {
+dns_public_list = {
     'radar': {'fa': '🛡️ رادار', 'en': '🛡️ Radar'},
-    'electro': {'fa': '⚡ الکترو', 'en': '⚡ Electro'}
+    'electro': {'fa': '⚡ الکترو', 'en': '⚡ Electro'},
+    '403': {'fa': '🌍 403', 'en': '🌍 403'},
+    'shekan': {'fa': '🔓 شکن', 'en': '🔓 Shekan'}
 }
+
+# ========== هندلرها ==========
 
 @bot.message_handler(commands=['start'])
 def start(m):
@@ -279,19 +311,26 @@ def start(m):
     except:
         pass
     
-    # ارسال پیام خوش‌آمدگویی با دکمه انتخاب زبان
+    # ارسال پیام خوش‌آمدگویی با کیبورد انتخاب زبان
     send_new_message(uid, cid, get_text('promotion', 'fa'), language_keyboard())
 
-@bot.callback_query_handler(func=lambda call: True)
-def callback(call):
-    uid = call.from_user.id
-    cid = call.message.chat.id
-    data = call.data
+@bot.message_handler(func=lambda m: True)
+def handle_messages(m):
+    uid = m.from_user.id
+    cid = m.chat.id
+    text = m.text
     user = get_user(uid)
     lang = user.get("lang", 'fa')
     
-    if data.startswith('lang_'):
-        new_lang = data.split('_')[1]
+    # پاک کردن پیام کاربر
+    try:
+        bot.delete_message(cid, m.message_id)
+    except:
+        pass
+    
+    # ===== انتخاب زبان =====
+    if text in ['🇮🇷 فارسی', '🇬🇧 English']:
+        new_lang = 'fa' if text == '🇮🇷 فارسی' else 'en'
         update_user(uid, {"lang": new_lang})
         lang = new_lang
         
@@ -303,62 +342,70 @@ def callback(call):
             save_data()
             bot.send_message(cid, random_motivation(lang))
         
-        # رفتن به منوی اصلی
         send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'back_main':
+    
+    # ===== منوی اصلی =====
+    elif text in ['🔙 برگشت به منوی اصلی', fancy_text("🔙 Back to Main Menu")]:
         send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'change_lang':
+    
+    elif text in ['📢 کانال‌ها', fancy_text("📢 CHANNELS")]:
+        bot.answer_callback_query = lambda x: None  # dummy
+        bot.send_message(cid, f"📢 @{CHANNEL1}\n🔒 @{CHANNEL2}")
+        send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
+    
+    elif text in ['🌍 تغییر زبان', fancy_text("🌍 CHANGE LANGUAGE")]:
         send_new_message(uid, cid, get_text('choose_lang', lang), language_keyboard())
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'channels':
-        bot.answer_callback_query(call.id, f"📢 @{CHANNEL1}\n🔒 @{CHANNEL2}", show_alert=True)
-        # برگشت به منوی اصلی
-        send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
-        
-    elif data == 'menu_vip':
-        send_new_message(uid, cid, "💎", build_category_menu(vip_files, 'vip', lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'menu_free':
-        send_new_message(uid, cid, "🎁", build_category_menu(free_files, 'free', lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'menu_gaming':
-        send_new_message(uid, cid, "🎮", build_category_menu(gaming_clips, 'gaming', lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'menu_dns':
-        send_new_message(uid, cid, "🌐", dns_keyboard(lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'menu_wireguard':
-        send_new_message(uid, cid, "🔐", wireguard_keyboard(lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'menu_codm':
-        send_new_message(uid, cid, "🆓", codm_keyboard(lang, uid))
-        bot.answer_callback_query(call.id)
-        
-    elif data.startswith('dns_operator_'):
-        op = data.replace('dns_operator_', '')
+    
+    # ===== منوی VIP =====
+    elif text in ['💎 VIP', fancy_text("💎 VIP")]:
+        send_new_message(uid, cid, get_text('vip_title', lang), category_keyboard(vip_files, 'vip', lang))
+    
+    elif text in [v['fa'] for v in vip_files.values()] or text in [fancy_text(v['en']) for v in vip_files.values()]:
         bot.send_message(cid, get_text('update', lang))
-        # برگشت به منوی DNS
-        send_new_message(uid, cid, "🌐", dns_keyboard(lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'dns_public':
-        txt = get_text('dns_public_note', lang) + "\n" + "\n".join(f"• {v[lang]}" for v in dns_public.values())
+        send_new_message(uid, cid, get_text('vip_title', lang), category_keyboard(vip_files, 'vip', lang))
+    
+    # ===== منوی فایل رایگان =====
+    elif text in ['🎁 فایل رایگان', fancy_text("🎁 FREE")]:
+        send_new_message(uid, cid, get_text('free_title', lang), category_keyboard(free_files, 'free', lang))
+    
+    elif text in [v['fa'] for v in free_files.values()] or text in [fancy_text(v['en']) for v in free_files.values()]:
+        bot.send_message(cid, get_text('update', lang))
+        send_new_message(uid, cid, get_text('free_title', lang), category_keyboard(free_files, 'free', lang))
+    
+    # ===== منوی گیمینگ =====
+    elif text in ['🎮 گیمینگ', fancy_text("🎮 GAMING")]:
+        send_new_message(uid, cid, get_text('gaming_title', lang), category_keyboard(gaming_clips, 'gaming', lang))
+    
+    elif text in [v['fa'] for v in gaming_clips.values()] or text in [fancy_text(v['en']) for v in gaming_clips.values()]:
+        bot.send_message(cid, get_text('update', lang))
+        send_new_message(uid, cid, get_text('gaming_title', lang), category_keyboard(gaming_clips, 'gaming', lang))
+    
+    # ===== منوی DNS =====
+    elif text in ['🌐 DNS', fancy_text("🌐 DNS")]:
+        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    
+    elif text in ['📶 ایرانسل', fancy_text("📶 Irancell")]:
+        bot.send_message(cid, get_text('update', lang))
+        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    
+    elif text in ['📶 همراه اول', fancy_text("📶 MCI")]:
+        bot.send_message(cid, get_text('update', lang))
+        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    
+    elif text in ['📶 مخابرات', fancy_text("📶 Mokhaberat")]:
+        bot.send_message(cid, get_text('update', lang))
+        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    
+    elif text in ['📶 شاتل', fancy_text("📶 Shatel")]:
+        bot.send_message(cid, get_text('update', lang))
+        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    
+    elif text in ['🌍 DNS عمومی', fancy_text("🌍 Public DNS")]:
+        txt = get_text('dns_public_note', lang) + "\n" + "\n".join(f"• {v[lang]}" for v in dns_public_list.values())
         bot.send_message(cid, txt)
-        # برگشت به منوی DNS
-        send_new_message(uid, cid, "🌐", dns_keyboard(lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'dns_free':
+        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    
+    elif text in ['🧪 تست رایگان', fancy_text("🧪 Free Test")]:
         now = time.time()
         uid_str = str(uid)
         if uid_str in db["dns_free"]:
@@ -368,8 +415,7 @@ def callback(call):
                 m = int((rem%3600)//60)
                 ts = f"{h}h {m}m" if lang == 'en' else f"{h} ساعت {m} دقیقه"
                 bot.send_message(cid, get_text('dns_free_active', lang, time=ts), parse_mode='Markdown')
-                send_new_message(uid, cid, "🌐", dns_keyboard(lang))
-                bot.answer_callback_query(call.id)
+                send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
                 return
             else:
                 del db["dns_free"][uid_str]
@@ -379,63 +425,94 @@ def callback(call):
         save_data()
         ts = "6h 0m" if lang == 'en' else "6 ساعت 0 دقیقه"
         bot.send_message(cid, get_text('dns_free_active', lang, time=ts), parse_mode='Markdown')
-        send_new_message(uid, cid, "🌐", dns_keyboard(lang))
-        bot.answer_callback_query(call.id, "✅ فعال شد!" if lang == 'fa' else "✅ Activated!")
-        
-    elif data in ['wire_vpn', 'wire_dns']:
+        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    
+    # ===== منوی وایرگارد =====
+    elif text in ['🔐 وایرگارد', fancy_text("🔐 WIREGUARD")]:
+        send_new_message(uid, cid, get_text('wireguard_title', lang), wireguard_keyboard(lang))
+    
+    elif text in ['🔐 VPN', fancy_text("🔐 VPN")]:
         bot.send_message(cid, get_text('update', lang))
-        send_new_message(uid, cid, "🔐", wireguard_keyboard(lang))
-        bot.answer_callback_query(call.id)
-        
-    elif data == 'codm_referral':
-        bot.send_message(cid, get_text('referral_link', lang, bot=BOT_USERNAME, ref=user["ref_code"]), parse_mode='Markdown')
-        send_new_message(uid, cid, "🆓", codm_keyboard(lang, uid))
-        bot.answer_callback_query(call.id)
-        
-    elif data in ['codm_free', 'codm_artery', 'codm_vivan']:
+        send_new_message(uid, cid, get_text('wireguard_title', lang), wireguard_keyboard(lang))
+    
+    elif text in ['🌐 DNS', fancy_text("🌐 DNS")] and user.get("current_menu") == "wireguard":
+        bot.send_message(cid, get_text('update', lang))
+        send_new_message(uid, cid, get_text('wireguard_title', lang), wireguard_keyboard(lang))
+    
+    # ===== منوی کالاف دیوتی =====
+    elif text in ['🆓 کالاف دیوتی', fancy_text("🆓 CODM")]:
+        update_user(uid, {"current_menu": "codm"})
+        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+    
+    elif text.startswith('🎮 اکانت رایگان') or text.startswith(fancy_text('🎮 Free Account')):
         if not is_member(uid):
-            bot.answer_callback_query(call.id, "❌ ابتدا عضو کانال‌ها شوید" if lang == 'fa' else "❌ Join channels first", show_alert=True)
-            send_new_message(uid, cid, "🆓", codm_keyboard(lang, uid))
+            bot.answer_callback_query = lambda x: None
+            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید" if lang == 'fa' else "❌ Join channels first")
+            send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
             return
             
         cnt = count_successful_referrals(uid)
-        required = {'codm_free': 5, 'codm_artery': 10, 'codm_vivan': 15}
-        claim_key = {'codm_free': 'free_account', 'codm_artery': 'artery', 'codm_vivan': 'vivan'}
-        
-        if cnt >= required[data]:
-            if not user["claimed"][claim_key[data]]:
+        if cnt >= 5:
+            if not user["claimed"]["free_account"]:
                 bot.send_message(cid, get_text('account_credentials', lang), parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"][claim_key[data]] = True
+                db["users"][str(uid)]["claimed"]["free_account"] = True
                 save_data()
-                bot.answer_callback_query(call.id, "✅ ارسال شد!" if lang == 'fa' else "✅ Sent!")
             else:
                 bot.send_message(cid, "⚠️ قبلاً دریافت کردید" if lang == 'fa' else "⚠️ Already claimed")
-                bot.answer_callback_query(call.id)
         else:
-            bot.answer_callback_query(call.id, f"نیاز به {required[data]} دعوت" if lang == 'fa' else f"Need {required[data]} invites", show_alert=True)
+            bot.send_message(cid, f"❌ نیاز به {5-cnt} دعوت دیگر" if lang == 'fa' else f"❌ Need {5-cnt} more invites")
         
-        # برگشت به منوی کالاف
-        send_new_message(uid, cid, "🆓", codm_keyboard(lang, uid))
-        
-    elif data == 'codm_combo':
+        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+    
+    elif text.startswith('🔥 Artery') or text.startswith(fancy_text('🔥 Artery')):
         if not is_member(uid):
-            bot.answer_callback_query(call.id, "❌ ابتدا عضو کانال‌ها شوید" if lang == 'fa' else "❌ Join channels first", show_alert=True)
+            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید" if lang == 'fa' else "❌ Join channels first")
+            send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+            return
+            
+        cnt = count_successful_referrals(uid)
+        if cnt >= 10:
+            if not user["claimed"]["artery"]:
+                bot.send_message(cid, get_text('account_credentials', lang), parse_mode='Markdown')
+                db["users"][str(uid)]["claimed"]["artery"] = True
+                save_data()
+            else:
+                bot.send_message(cid, "⚠️ قبلاً دریافت کردید" if lang == 'fa' else "⚠️ Already claimed")
+        else:
+            bot.send_message(cid, f"❌ نیاز به {10-cnt} دعوت دیگر" if lang == 'fa' else f"❌ Need {10-cnt} more invites")
+        
+        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+    
+    elif text.startswith('✨ Vivan Harris') or text.startswith(fancy_text('✨ Vivan Harris')):
+        if not is_member(uid):
+            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید" if lang == 'fa' else "❌ Join channels first")
+            send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+            return
+            
+        cnt = count_successful_referrals(uid)
+        if cnt >= 15:
+            if not user["claimed"]["vivan"]:
+                bot.send_message(cid, get_text('account_credentials', lang), parse_mode='Markdown')
+                db["users"][str(uid)]["claimed"]["vivan"] = True
+                save_data()
+            else:
+                bot.send_message(cid, "⚠️ قبلاً دریافت کردید" if lang == 'fa' else "⚠️ Already claimed")
+        else:
+            bot.send_message(cid, f"❌ نیاز به {15-cnt} دعوت دیگر" if lang == 'fa' else f"❌ Need {15-cnt} more invites")
+        
+        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+    
+    elif text in ['📋 لیست کمبو', fancy_text("📋 Combo List")]:
+        if not is_member(uid):
+            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید" if lang == 'fa' else "❌ Join channels first")
         else:
             bot.send_message(cid, f"👤 {ADMIN_ID}")
-            bot.answer_callback_query(call.id)
         
-        send_new_message(uid, cid, "🆓", codm_keyboard(lang, uid))
-        
-    elif data.startswith(('vip_', 'free_', 'gaming_')):
-        bot.send_message(cid, get_text('update', lang))
-        # برگشت به منوی مربوطه
-        if data.startswith('vip_'):
-            send_new_message(uid, cid, "💎", build_category_menu(vip_files, 'vip', lang))
-        elif data.startswith('free_'):
-            send_new_message(uid, cid, "🎁", build_category_menu(free_files, 'free', lang))
-        else:
-            send_new_message(uid, cid, "🎮", build_category_menu(gaming_clips, 'gaming', lang))
-        bot.answer_callback_query(call.id)
+        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+    
+    elif text in ['🔗 لینک معرفی', fancy_text("🔗 Referral Link")]:
+        bot.send_message(cid, get_text('referral_link', lang, bot=BOT_USERNAME, ref=user["ref_code"]), parse_mode='Markdown')
+        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
 
-print("🚀 Bot is running...")
+print("🚀 Bot is running with REPLY KEYBOARD...")
 bot.polling(none_stop=True, interval=0, timeout=30)
