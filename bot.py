@@ -20,12 +20,7 @@ MOTIVATION_FA = [
     "「ما زخم‌هایمان را در سکوت حمل می‌کنیم، نه در فریاد。」 — آنتوان چخوف",
     "「خورشید هر روز غروب می‌کند تا ما قدر طلوع را بدانیم。」 — مثل ژاپنی",
     "「مرز بین نبوغ و دیوانگی فقط با میزان موفقیت سنجیده می‌شود。」 — آرتور شوپنهاور",
-    "「بعضی دیوارها نه برای دور نگه‌داشتن ما، بلکه برای محک زدن عزم ما ساخته شده‌اند。」 — ناشناس",
-    "「ذهن مانند چتر نجات است؛ وقتی باز نباشد، کار نمی‌کند。」 — فرانک زاپا",
-    "「تجربه معلمی سخت‌گیر است؛ اول امتحان می‌گیرد، بعد درس می‌دهد。」 — مثل انگلیسی",
-    "「بزرگ‌ترین ماجراجویی‌ها در ذهن اتفاق می‌افتند، اما پاهایت باید آنها را دنبال کنند。」 — ناشناس",
-    "「ما بردگان ابزارهای خود شده‌ایم。」 — ژان بودریار",
-    "「پیشرفت غیرممکن نیست؛ فقط هنوز انجام نشده است。」 — ناشناس"
+    "「بعضی دیوارها نه برای دور نگه‌داشتن ما، بلکه برای محک زدن عزم ما ساخته شده‌اند。」 — ناشناس"
 ]
 MOTIVATION_EN = [
     "💭 \"We are what we repeatedly do. Excellence, then, is not an act, but a habit.\" — Aristotle",
@@ -37,12 +32,7 @@ MOTIVATION_EN = [
     "💭 \"He who has a why to live can bear almost any how.\" — Nietzsche",
     "💭 \"Sometimes people don't want to hear the truth because they don't want their illusions destroyed.\" — Nietzsche",
     "💭 \"The most common way people give up their power is by thinking they don't have any.\" — Alice Walker",
-    "💭 \"It is not the strongest of the species that survives, nor the most intelligent, but the one most responsive to change.\" — Leon C. Megginson",
-    "💭 \"The two most important days in your life are the day you are born and the day you find out why.\" — Mark Twain",
-    "💭 \"What is to give light must endure burning.\" — Viktor Frankl",
-    "💭 \"Man is the only creature who refuses to be what he is.\" — Albert Camus",
-    "💭 \"The wound is the place where the Light enters you.\" — Rumi",
-    "💭 \"And now here is my secret, a very simple secret: It is only with the heart that one can see rightly; what is essential is invisible to the eye.\" — Saint-Exupéry"
+    "💭 \"It is not the strongest of the species that survives, nor the most intelligent, but the one most responsive to change.\" — Leon C. Megginson"
 ]
 
 def random_motivation(lang):
@@ -85,188 +75,370 @@ def add_referral(rid,nid):
 def get_text(key,lang):
     t={
         'promotion':{
-            'fa':"\n━━━━━━━━━━━━━━━━━━━━\n✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐁𝐎𝐓 ✨\n━━━━━━━━━━━━━━━━━━━━\n\n🔥 فراتر از یه بات ساده...\nاینجا فقط دانلود نیست، تجربه‌ست.\n\n👤 ادمین: @Karbawzi1PV\n📢 کانال فایل‌ها: @Karbawzi1File\n🔒 کانال اعتماد: @Karbawzi1Trust\n\n━━━━━━━━━━━━━━━━━━━━\nما موندگاریم، چون متفاوتیم.\n━━━━━━━━━━━━━━━━━━━━\n",
-            'en':fancy_text("\n━━━━━━━━━━━━━━━━━━━━\n✨ KARBAWZI PREMIUM BOT ✨\n━━━━━━━━━━━━━━━━━━━━\n\n🔥 More than a simple bot...\nThis is not just download, it's an experience.\n\n👤 Admin: @Karbawzi1PV\n📢 Files Channel: @Karbawzi1File\n🔒 Trust Channel: @Karbawzi1Trust\n\n━━━━━━━━━━━━━━━━━━━━\nWe stay, because we are different.\n━━━━━━━━━━━━━━━━━━━━\n")
+            'fa':"✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌\n\n🔥 karbawzi UPD\nفراتر از یه بات ساده...\nاینجا فقط بات نیست، یک گوشه از هزاران رد پای من هست.\n\n👤 ادمین: @Karbawzi1PV\n📢 کانال اول: @Karbawzi1File\n🔒 کانال دوم: @Karbawzi1Trust\n\nما موندگاریم، چون متفاوتیم.",
+            'en':fancy_text("✨ KARBAWZI PREMIUM\n\n🔥 karbawzi UPD\nMore than a simple bot...\nThis is not just a bot, it's a corner of thousands of my footprints.\n\n👤 Admin: @Karbawzi1PV\n📢 Channel 1: @Karbawzi1File\n🔒 Channel 2: @Karbawzi1Trust\n\nWe stay, because we are different.")
         },
-        'choose_lang':{'fa':"🌍 لطفاً زبان خود را انتخاب کنید:",'en':fancy_text("🌍 Please choose your language:")},
-        'welcome_main':{'fa':"✨ به پنل اصلی خوش اومدی!\nیکی از دسته‌بندی‌های زیر رو انتخاب کن:",'en':fancy_text("✨ Welcome to Main Panel!\nChoose one of the categories below:")},
-        'verified_membership':{'fa':"✅ تایید شدی! حالا به جمع حرفه‌ای‌ها خوش اومدی 🔥",'en':fancy_text("✅ Verified! Now welcome to the pros 🔥")},
-        'not_member':{'fa':"❌ شما هنوز عضو کانال‌ها نشده‌اید!",'en':fancy_text("❌ You are not a member yet!")},
-        'error':{'fa':"❌ خطا در ارسال فایل!",'en':fancy_text("❌ Error sending file!")},
-        'channels_info':{'fa':"📢 @Karbawzi1File\n🔒 @Karbawzi1Trust",'en':fancy_text("📢 @Karbawzi1File\n🔒 @Karbawzi1Trust")},
-        'update_message':{'fa':"🔄 در حال بروزرسانی بات هستیم.\nلطفاً شکیبا باشید و بعداً مراجعه کنید 🙏",'en':fancy_text("🔄 Bot is being updated.\nPlease be patient and check back later 🙏")},
-        'prices_update':{'fa':"💰 قیمت‌ها در حال بروزرسانی می‌باشد.\nبه‌زودی با پیشنهادهای ویژه بازخواهیم گشت ✨",'en':fancy_text("💰 Prices are being updated.\nWe'll be back soon with special offers ✨")},
-        'dns_free_active':{'fa':"✅ تست رایگان شما فعال است.\n\nپرایمری DNS: `78.157.53.52`\nثانویه DNS: `78.157.53.219`\n\n⏳ زمان باقی‌مانده: {time}\n\nپس از اتمام، می‌توانید مجدداً فعال کنید.",'en':fancy_text("✅ Your free test is active.\n\nPrimary DNS: `78.157.53.52`\nSecondary DNS: `78.157.53.219`\n\n⏳ Time left: {time}\n\nAfter expiration, you can activate again.")},
-        'dns_public_note':{'fa':"🌍 DNS عمومی و کاملاً رایگان – مناسب برای دور زدن محدودیت‌های ساده",'en':fancy_text("🌍 Public & completely free DNS – suitable for bypassing simple restrictions")},
-        'codm_free_locked':{'fa':"🔒 برای دریافت اکانت رایگان باید:\n✅ عضو هر دو کانال شوید\n✅ ۵ نفر را با لینک معرفی خود دعوت کنید (دعوت‌شدگان نیز عضو کانال‌ها شوند)\n\nتعداد دعوت‌های موفق فعلی: {count}/5",'en':fancy_text("🔒 To get a free account:\n✅ Join both channels\n✅ Invite 5 people via your referral link (they must also join channels)\n\nCurrent successful invites: {count}/5")},
-        'codm_artery_locked':{'fa':"🔒 برای دریافت اکانت Artery (هند، تک‌سیو) باید:\n✅ عضو هر دو کانال شوید\n✅ ۱۰ نفر را با لینک معرفی دعوت کنید\n\nتعداد دعوت‌های موفق فعلی: {count}/10",'en':fancy_text("🔒 To get an Artery account (India, single save):\n✅ Join both channels\n✅ Invite 10 people via your referral link\n\nCurrent successful invites: {count}/10")},
-        'codm_vivan_locked':{'fa':"🔒 برای دریافت اکانت Vivan Harris (هند، تک‌سیو) باید:\n✅ عضو هر دو کانال شوید\n✅ ۱۵ نفر را با لینک معرفی دعوت کنید\n\nتعداد دعوت‌های موفق فعلی: {count}/15",'en':fancy_text("🔒 To get a Vivan Harris account (India, single save):\n✅ Join both channels\n✅ Invite 15 people via your referral link\n\nCurrent successful invites: {count}/15")},
-        'codm_combo_locked':{'fa':"🔒 برای دریافت لیست کمبو باید عضو هر دو کانال باشید.\nپس از عضویت، با ادمین زیر هماهنگ کنید:\n👤 {admin}",'en':fancy_text("🔒 To get the combo list you must be a member of both channels.\nAfter joining, contact the admin:\n👤 {admin}")},
-        'account_credentials':{'fa':"📋 اکانت شما:\n📧 Gmail: `test@gmail.com`\n🔑 Password: `test.`\n\n⚠️ این اکانت صرفاً برای تست می‌باشد و در آپدیت بعدی با اکانت واقعی جایگزین خواهد شد.",'en':fancy_text("📋 Your account:\n📧 Gmail: `test@gmail.com`\n🔑 Password: `test.`\n\n⚠️ This account is for testing only and will be replaced with real accounts in the next update.")},
-        'referral_link':{'fa':"🔗 لینک معرفی اختصاصی شما:\n`https://t.me/{bot}?start={ref}`\n\nاین لینک را برای دوستانتان بفرستید. هر نفر که عضو هر دو کانال شود، یک دعوت موفق برای شما حساب می‌شود.",'en':fancy_text("🔗 Your personal referral link:\n`https://t.me/{bot}?start={ref}`\n\nShare this link with your friends. Each person who joins both channels counts as a successful referral.")},
-        'vip_title':{'fa':"💎 بخش فایل‌های ویژه",'en':fancy_text("💎 VIP Files Section")},
-        'free_title':{'fa':"🎁 بخش فایل‌های رایگان",'en':fancy_text("🎁 Free Files Section")},
-        'gaming_title':{'fa':"🎮 هایلایت گیم‌پلی",'en':fancy_text("🎮 Gaming Highlights")},
-        'dns_title':{'fa':"🌐 سرویس‌های DNS",'en':fancy_text("🌐 DNS Services")},
-        'wireguard_title':{'fa':"🔐 وایرگارد",'en':fancy_text("🔐 Wireguard")},
-        'codm_title':{'fa':"🆓 اکانت‌های کالاف دیوتی",'en':fancy_text("🆓 CODM Accounts")},
+        'choose_lang':{'fa':'🌍 زبان خود را انتخاب کنید:', 'en':fancy_text('🌍 Choose your language:')},
+        'welcome_main':{'fa':'✨ به پنل اصلی خوش اومدی!', 'en':fancy_text('✨ Welcome to Main Panel!')},
+        'verified_membership':{'fa':'✅ تایید شدی!', 'en':fancy_text('✅ Verified!')},
+        'not_member':{'fa':'❌ ابتدا عضو کانال‌ها شوید', 'en':fancy_text('❌ Join channels first')},
+        'channels_info':{'fa':'📢 @Karbawzi1File\n🔒 @Karbawzi1Trust', 'en':fancy_text('📢 @Karbawzi1File\n🔒 @Karbawzi1Trust')},
+        'dns_free_active':{'fa':'✅ تست رایگان فعال\n\nپرایمری: `78.157.53.52`\nثانویه: `78.157.53.219`\n\n⏳ {time} باقی‌مانده', 'en':fancy_text('✅ Free test active\n\nPrimary: `78.157.53.52`\nSecondary: `78.157.53.219`\n\n⏳ {time} left')},
+        'dns_public_note':{'fa':'🌍 DNS عمومی رایگان', 'en':fancy_text('🌍 Public free DNS')},
+        'referral_link':{'fa':'🔗 لینک معرفی شما:\n`https://t.me/{bot}?start={ref}`', 'en':fancy_text('🔗 Your referral link:\n`https://t.me/{bot}?start={ref}`')},
+        'account_credentials':{'fa':'📋 اکانت تست\n📧 `test@gmail.com`\n🔑 `test.`', 'en':fancy_text('📋 Test account\n📧 `test@gmail.com`\n🔑 `test.`')},
+        'already_claimed':{'fa':'⚠️ قبلاً دریافت کردید', 'en':fancy_text('⚠️ Already claimed')},
+        'update':{'fa':'🔄 در حال بروزرسانی', 'en':fancy_text('🔄 Updating...')},
+        'prices_update':{'fa':'💰 بروزرسانی قیمت‌ها', 'en':fancy_text('💰 Updating prices...')},
     }
+    
+    # متون شرطی که می‌خواهیم دکمه‌ها زیرشون باشه
+    conditional = {
+        'codm_free':{'fa':f'🔒 اکانت رایگان\n✅ عضو کانال‌ها: {"✓" if is_member_global else "✗"}\n👥 دعوت‌ها: {count_global}/5', 
+                    'en':fancy_text(f'🔒 Free account\n✅ Joined: {"✓" if is_member_global else "✗"}\n👥 Invites: {count_global}/5')},
+        'codm_artery':{'fa':f'🔒 Artery\n✅ عضو کانال‌ها: {"✓" if is_member_global else "✗"}\n👥 دعوت‌ها: {count_global}/10',
+                      'en':fancy_text(f'🔒 Artery\n✅ Joined: {"✓" if is_member_global else "✗"}\n👥 Invites: {count_global}/10')},
+        'codm_vivan':{'fa':f'🔒 Vivan Harris\n✅ عضو کانال‌ها: {"✓" if is_member_global else "✗"}\n👥 دعوت‌ها: {count_global}/15',
+                     'en':fancy_text(f'🔒 Vivan Harris\n✅ Joined: {"✓" if is_member_global else "✗"}\n👥 Invites: {count_global}/15')},
+    }
+    
+    if key in conditional:
+        return conditional[key][lang]
     return t.get(key,{}).get(lang,t[key]['en'])
 
 def language_keyboard():
     m=InlineKeyboardMarkup(row_width=2)
-    m.add(InlineKeyboardButton("🇮🇷 فارسی",callback_data='lang_fa'),InlineKeyboardButton("🇬🇧 English",callback_data='lang_en'))
-    return m
-def main_menu_keyboard(lang):
-    m=InlineKeyboardMarkup(row_width=2)
-    if lang=='fa': b=[InlineKeyboardButton("💎 VIP",callback_data='menu_vip'),InlineKeyboardButton("🎁 فایل رایگان",callback_data='menu_free'),InlineKeyboardButton("🎮 GAMING",callback_data='menu_gaming'),InlineKeyboardButton("🌐 DNS",callback_data='menu_dns'),InlineKeyboardButton("🔐 WIRE",callback_data='menu_wireguard'),InlineKeyboardButton("🆓 CODM",callback_data='menu_codm'),InlineKeyboardButton("🌍 زبان",callback_data='change_lang'),InlineKeyboardButton("📢 کانال‌ها",callback_data='channels')]
-    else: b=[InlineKeyboardButton(fancy_text("💎 VIP"),callback_data='menu_vip'),InlineKeyboardButton(fancy_text("🎁 FREE"),callback_data='menu_free'),InlineKeyboardButton(fancy_text("🎮 GAMING"),callback_data='menu_gaming'),InlineKeyboardButton(fancy_text("🌐 DNS"),callback_data='menu_dns'),InlineKeyboardButton(fancy_text("🔐 WIRE"),callback_data='menu_wireguard'),InlineKeyboardButton(fancy_text("🆓 CODM"),callback_data='menu_codm'),InlineKeyboardButton(fancy_text("🌍 LANGUAGE"),callback_data='change_lang'),InlineKeyboardButton(fancy_text("📢 CHANNELS"),callback_data='channels')]
-    m.add(*b); return m
-def build_category_menu(cd,cp,lang):
-    m=InlineKeyboardMarkup(row_width=2)
-    for k,v in cd.items():
-        n=v[lang]
-        if lang=='en': n=fancy_text(n)
-        m.add(InlineKeyboardButton(n,callback_data=f'{cp}_{k}'))
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"),callback_data='back_main'))
-    return m
-def dns_main_keyboard(lang):
-    m=InlineKeyboardMarkup(row_width=2)
-    if lang=='fa': b=[InlineKeyboardButton("📶 ایرانسل (MTN)",callback_data='dns_operator_irancell'),InlineKeyboardButton("📶 همراه اول (MCI)",callback_data='dns_operator_mci'),InlineKeyboardButton("📶 مخابرات",callback_data='dns_operator_mokhaberat'),InlineKeyboardButton("📶 شاتل",callback_data='dns_operator_shatel'),InlineKeyboardButton("🌍 DNS عمومی",callback_data='dns_public'),InlineKeyboardButton("🧪 تست رایگان",callback_data='dns_free')]
-    else: b=[InlineKeyboardButton(fancy_text("📶 Irancell (MTN)"),callback_data='dns_operator_irancell'),InlineKeyboardButton(fancy_text("📶 Hamrah Aval (MCI)"),callback_data='dns_operator_mci'),InlineKeyboardButton(fancy_text("📶 Mokhaberat"),callback_data='dns_operator_mokhaberat'),InlineKeyboardButton(fancy_text("📶 Shatel"),callback_data='dns_operator_shatel'),InlineKeyboardButton(fancy_text("🌍 Public DNS"),callback_data='dns_public'),InlineKeyboardButton(fancy_text("🧪 Free Test"),callback_data='dns_free')]
-    m.add(*b)
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"),callback_data='back_main'))
-    return m
-def wireguard_main_keyboard(lang):
-    m=InlineKeyboardMarkup(row_width=2)
-    if lang=='fa': b=[InlineKeyboardButton("🔐 Wire VPN",callback_data='wire_vpn'),InlineKeyboardButton("🌐 Wire DNS",callback_data='wire_dns')]
-    else: b=[InlineKeyboardButton(fancy_text("🔐 Wire VPN"),callback_data='wire_vpn'),InlineKeyboardButton(fancy_text("🌐 Wire DNS"),callback_data='wire_dns')]
-    m.add(*b)
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"),callback_data='back_main'))
-    return m
-def codm_main_keyboard(lang):
-    m=InlineKeyboardMarkup(row_width=2)
-    if lang=='fa': b=[InlineKeyboardButton("🎮 اکانت رایگان",callback_data='codm_free'),InlineKeyboardButton("🔥 Artery",callback_data='codm_artery'),InlineKeyboardButton("✨ Vivan Harris",callback_data='codm_vivan'),InlineKeyboardButton("📋 لیست کمبو",callback_data='codm_combo'),InlineKeyboardButton("🔗 لینک معرفی",callback_data='codm_referral')]
-    else: b=[InlineKeyboardButton(fancy_text("🎮 Free Account"),callback_data='codm_free'),InlineKeyboardButton(fancy_text("🔥 Artery"),callback_data='codm_artery'),InlineKeyboardButton(fancy_text("✨ Vivan Harris"),callback_data='codm_vivan'),InlineKeyboardButton(fancy_text("📋 Combo List"),callback_data='codm_combo'),InlineKeyboardButton(fancy_text("🔗 Referral Link"),callback_data='codm_referral')]
-    m.add(*b)
-    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"),callback_data='back_main'))
+    m.add(InlineKeyboardButton("🇮🇷 فارسی",callback_data='lang_fa'),
+          InlineKeyboardButton("🇬🇧 English",callback_data='lang_en'))
     return m
 
-vip_files={'promax':{'fa':'🚀 ProMax','en':'🚀 ProMax'},'topvip':{'fa':'👑 TopVIP','en':'👑 TopVIP'},'youtuber':{'fa':'🎬 YouTuber','en':'🎬 YouTuber'},'fixlag':{'fa':'⚡ FixLag (ضد لگ)','en':'⚡ FixLag'}}
+def main_menu_keyboard(lang):
+    m=InlineKeyboardMarkup(row_width=2)
+    if lang=='fa':
+        buttons=[
+            InlineKeyboardButton("💎 VIP",callback_data='menu_vip'),
+            InlineKeyboardButton("🎁 رایگان",callback_data='menu_free'),
+            InlineKeyboardButton("🎮 گیمینگ",callback_data='menu_gaming'),
+            InlineKeyboardButton("🌐 DNS",callback_data='menu_dns'),
+            InlineKeyboardButton("🔐 وایرگارد",callback_data='menu_wireguard'),
+            InlineKeyboardButton("🆓 کالاف",callback_data='menu_codm'),
+            InlineKeyboardButton("🌍 زبان",callback_data='change_lang'),
+            InlineKeyboardButton("📢 کانال‌ها",callback_data='channels')
+        ]
+    else:
+        buttons=[
+            InlineKeyboardButton(fancy_text("💎 VIP"),callback_data='menu_vip'),
+            InlineKeyboardButton(fancy_text("🎁 FREE"),callback_data='menu_free'),
+            InlineKeyboardButton(fancy_text("🎮 GAMING"),callback_data='menu_gaming'),
+            InlineKeyboardButton(fancy_text("🌐 DNS"),callback_data='menu_dns'),
+            InlineKeyboardButton(fancy_text("🔐 WIRE"),callback_data='menu_wireguard'),
+            InlineKeyboardButton(fancy_text("🆓 CODM"),callback_data='menu_codm'),
+            InlineKeyboardButton(fancy_text("🌍 LANGUAGE"),callback_data='change_lang'),
+            InlineKeyboardButton(fancy_text("📢 CHANNELS"),callback_data='channels')
+        ]
+    m.add(*buttons)
+    return m
+
+def build_category_menu(items, prefix, lang):
+    m=InlineKeyboardMarkup(row_width=2)
+    for k,v in items.items():
+        m.add(InlineKeyboardButton(v[lang], callback_data=f'{prefix}_{k}'))
+    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
+    return m
+
+def dns_keyboard(lang):
+    m=InlineKeyboardMarkup(row_width=2)
+    if lang=='fa':
+        m.add(InlineKeyboardButton("📶 ایرانسل", callback_data='dns_operator_irancell'),
+              InlineKeyboardButton("📶 همراه اول", callback_data='dns_operator_mci'))
+        m.add(InlineKeyboardButton("📶 مخابرات", callback_data='dns_operator_mokhaberat'),
+              InlineKeyboardButton("📶 شاتل", callback_data='dns_operator_shatel'))
+        m.add(InlineKeyboardButton("🌍 عمومی", callback_data='dns_public'),
+              InlineKeyboardButton("🧪 تست رایگان", callback_data='dns_free'))
+    else:
+        m.add(InlineKeyboardButton(fancy_text("📶 Irancell"), callback_data='dns_operator_irancell'),
+              InlineKeyboardButton(fancy_text("📶 MCI"), callback_data='dns_operator_mci'))
+        m.add(InlineKeyboardButton(fancy_text("📶 Mokhaberat"), callback_data='dns_operator_mokhaberat'),
+              InlineKeyboardButton(fancy_text("📶 Shatel"), callback_data='dns_operator_shatel'))
+        m.add(InlineKeyboardButton(fancy_text("🌍 Public"), callback_data='dns_public'),
+              InlineKeyboardButton(fancy_text("🧪 Free Test"), callback_data='dns_free'))
+    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
+    return m
+
+def wireguard_keyboard(lang):
+    m=InlineKeyboardMarkup(row_width=2)
+    if lang=='fa':
+        m.add(InlineKeyboardButton("🔐 VPN", callback_data='wire_vpn'),
+              InlineKeyboardButton("🌐 DNS", callback_data='wire_dns'))
+    else:
+        m.add(InlineKeyboardButton(fancy_text("🔐 VPN"), callback_data='wire_vpn'),
+              InlineKeyboardButton(fancy_text("🌐 DNS"), callback_data='wire_dns'))
+    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
+    return m
+
+def codm_keyboard(lang, uid):
+    is_mem = is_member(uid)
+    cnt = count_successful_referrals(uid)
+    
+    m=InlineKeyboardMarkup(row_width=1)
+    
+    if lang=='fa':
+        free_text = f"🎮 اکانت رایگان {'✓' if is_mem else '✗'} | {cnt}/5"
+        artery_text = f"🔥 Artery {'✓' if is_mem else '✗'} | {cnt}/10"
+        vivan_text = f"✨ Vivan Harris {'✓' if is_mem else '✗'} | {cnt}/15"
+        
+        m.add(InlineKeyboardButton(free_text, callback_data='codm_free'))
+        m.add(InlineKeyboardButton(artery_text, callback_data='codm_artery'))
+        m.add(InlineKeyboardButton(vivan_text, callback_data='codm_vivan'))
+        m.add(InlineKeyboardButton("📋 لیست کمبو", callback_data='codm_combo'),
+              InlineKeyboardButton("🔗 لینک معرفی", callback_data='codm_referral'))
+    else:
+        free_text = fancy_text(f"🎮 Free Account {'✓' if is_mem else '✗'} | {cnt}/5")
+        artery_text = fancy_text(f"🔥 Artery {'✓' if is_mem else '✗'} | {cnt}/10")
+        vivan_text = fancy_text(f"✨ Vivan Harris {'✓' if is_mem else '✗'} | {cnt}/15")
+        
+        m.add(InlineKeyboardButton(free_text, callback_data='codm_free'))
+        m.add(InlineKeyboardButton(artery_text, callback_data='codm_artery'))
+        m.add(InlineKeyboardButton(vivan_text, callback_data='codm_vivan'))
+        m.add(InlineKeyboardButton(fancy_text("📋 Combo List"), callback_data='codm_combo'),
+              InlineKeyboardButton(fancy_text("🔗 Referral Link"), callback_data='codm_referral'))
+    
+    m.add(InlineKeyboardButton("🔙 برگشت" if lang=='fa' else fancy_text("🔙 Back"), callback_data='back_main'))
+    return m
+
+# دیکشنری‌های منوها
+vip_files={'promax':{'fa':'🚀 ProMax','en':'🚀 ProMax'},
+           'topvip':{'fa':'👑 TopVIP','en':'👑 TopVIP'}}
 free_files={'free':{'fa':'🎁 فایل رایگان','en':'🎁 Free File'}}
-gaming_clips={'clip1':{'fa':'🎬 اسنیپر حرفه‌ای','en':'🎬 Pro Sniper'},'clip2':{'fa':'🔥 کلچ ۱vs۵','en':'🔥 1vs5 Clutch'},'clip3':{'fa':'🏆 تورنمنت هفته','en':'🏆 Weekly Tourney'},'clip4':{'fa':'📺 آموزش حرکات','en':'📺 Movement Tips'}}
-dns_operators={'irancell':{'fa':'📶 ایرانسل (MTN)','en':'📶 Irancell (MTN)'},'mci':{'fa':'📶 همراه اول (MCI)','en':'📶 Hamrah Aval (MCI)'},'mokhaberat':{'fa':'📶 مخابرات','en':'📶 Mokhaberat'},'shatel':{'fa':'📶 شاتل','en':'📶 Shatel'}}
-dns_public={'radar':{'fa':'🛡️ رادار','en':'🛡️ Radar'},'electro':{'fa':'⚡ الکترو','en':'⚡ Electro'},'403':{'fa':'🌍 403','en':'🌍 403'},'shekan':{'fa':'🔓 شکن','en':'🔓 Shekan'}}
-wireguard_sections={'vpn':{'fa':'🔐 Wire VPN','en':'🔐 Wire VPN'},'dns':{'fa':'🌐 Wire DNS','en':'🌐 Wire DNS'}}
+gaming_clips={'clip1':{'fa':'🎬 اسنیپر','en':'🎬 Sniper'},
+              'clip2':{'fa':'🔥 کلچ','en':'🔥 Clutch'}}
+dns_public={'radar':{'fa':'🛡️ رادار','en':'🛡️ Radar'},
+            'electro':{'fa':'⚡ الکترو','en':'⚡ Electro'}}
 
 @bot.message_handler(commands=['start'])
 def start(m):
-    uid=m.from_user.id; cid=m.chat.id; args=m.text.split()
+    uid=m.from_user.id
+    cid=m.chat.id
+    args=m.text.split()
+    
     if len(args)>1 and args[1].startswith('ref'):
         try:
             rid=args[1][3:]
-            if rid!=str(uid): add_referral(rid,uid); get_user(uid)["referred_by"]=rid; save_data()
+            if rid!=str(uid):
+                add_referral(rid,uid)
+                get_user(uid)["referred_by"]=rid
+                save_data()
         except: pass
-    bot.send_message(cid,get_text('promotion','fa'))
-    bot.send_message(cid,get_text('choose_lang','fa'),reply_markup=language_keyboard())
+    
+    # پاک کردن پیام‌های قبلی کاربر
+    try:
+        bot.delete_message(cid, m.message_id)
+    except: pass
+    
+    msg = bot.send_message(cid, get_text('promotion','fa'), reply_markup=language_keyboard())
+    # ذخیره آخرین پیام برای پاک کردن بعدی
+    db["users"][str(uid)]["last_msg"] = msg.message_id
+    save_data()
 
 @bot.callback_query_handler(func=lambda call:True)
 def callback(call):
-    uid=call.from_user.id; cid=call.message.chat.id; mid=call.message.message_id; data=call.data
+    uid=call.from_user.id
+    cid=call.message.chat.id
+    mid=call.message.message_id
+    data=call.data
     lang=get_user(uid).get("lang",'fa')
+    
+    # پاک کردن پیام قبلی
+    try:
+        bot.delete_message(cid, mid)
+    except: pass
+    
     if data.startswith('lang_'):
-        new_lang=data.split('_')[1]; update_user(uid,{"lang":new_lang}); lang=new_lang
-        now=time.time(); last=db["last_motivation"].get(str(uid),0)
+        new_lang=data.split('_')[1]
+        update_user(uid,{"lang":new_lang})
+        lang=new_lang
+        
+        # متن انگیزشی
+        now=time.time()
+        last=db["last_motivation"].get(str(uid),0)
         if now-last>=3600:
-            db["last_motivation"][str(uid)]=now; save_data()
-            bot.send_message(cid,random_motivation(lang))
-        bot.edit_message_text(get_text('welcome_main',lang),cid,mid,reply_markup=main_menu_keyboard(lang))
-        bot.answer_callback_query(call.id,"✅ "+("زبان انتخاب شد" if lang=='fa' else "Language set"))
-    elif data=='check':
-        if is_member(uid):
-            bot.answer_callback_query(call.id,get_text('verified_membership',lang))
-            if get_user(uid).get("referred_by"): add_referral(get_user(uid)["referred_by"],uid)
-            bot.edit_message_text(get_text('welcome_main',lang),cid,mid,reply_markup=main_menu_keyboard(lang))
-        else: bot.answer_callback_query(call.id,get_text('not_member',lang),show_alert=True)
+            db["last_motivation"][str(uid)]=now
+            save_data()
+            bot.send_message(cid, random_motivation(lang))
+        
+        msg = bot.send_message(cid, get_text('welcome_main',lang), reply_markup=main_menu_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='back_main':
-        bot.edit_message_text(get_text('welcome_main',lang),cid,mid,reply_markup=main_menu_keyboard(lang))
+        msg = bot.send_message(cid, get_text('welcome_main',lang), reply_markup=main_menu_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='change_lang':
-        bot.edit_message_text(get_text('choose_lang',lang),cid,mid,reply_markup=language_keyboard())
+        msg = bot.send_message(cid, get_text('choose_lang',lang), reply_markup=language_keyboard())
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='channels':
-        bot.answer_callback_query(call.id,get_text('channels_info',lang),show_alert=True)
+        bot.answer_callback_query(call.id, get_text('channels_info',lang), show_alert=True)
+        # برگشت به منوی اصلی بعد از نمایش
+        msg = bot.send_message(cid, get_text('welcome_main',lang), reply_markup=main_menu_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        
     elif data=='menu_vip':
-        bot.edit_message_text(get_text('vip_title',lang),cid,mid,reply_markup=build_category_menu(vip_files,'vip',lang))
+        msg = bot.send_message(cid, "💎", reply_markup=build_category_menu(vip_files,'vip',lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='menu_free':
-        bot.edit_message_text(get_text('free_title',lang),cid,mid,reply_markup=build_category_menu(free_files,'free',lang))
+        msg = bot.send_message(cid, "🎁", reply_markup=build_category_menu(free_files,'free',lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='menu_gaming':
-        bot.edit_message_text(get_text('gaming_title',lang),cid,mid,reply_markup=build_category_menu(gaming_clips,'gaming',lang))
+        msg = bot.send_message(cid, "🎮", reply_markup=build_category_menu(gaming_clips,'gaming',lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='menu_dns':
-        bot.edit_message_text(get_text('dns_title',lang),cid,mid,reply_markup=dns_main_keyboard(lang))
+        msg = bot.send_message(cid, "🌐", reply_markup=dns_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='menu_wireguard':
-        bot.edit_message_text(get_text('wireguard_title',lang),cid,mid,reply_markup=wireguard_main_keyboard(lang))
+        msg = bot.send_message(cid, "🔐", reply_markup=wireguard_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='menu_codm':
-        bot.edit_message_text(get_text('codm_title',lang),cid,mid,reply_markup=codm_main_keyboard(lang))
+        msg = bot.send_message(cid, "🆓", reply_markup=codm_keyboard(lang, uid))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data.startswith('dns_operator_'):
-        op=data.replace('dns_operator_',''); name=dns_operators[op][lang]
-        bot.send_message(cid,f"🌐 {name}\n\n"+get_text('update_message',lang)); bot.answer_callback_query(call.id)
+        bot.send_message(cid, get_text('update',lang))
+        # برگشت به منوی DNS
+        msg = bot.send_message(cid, "🌐", reply_markup=dns_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='dns_public':
-        txt=get_text('dns_public_note',lang)+"\n\n"+("\n".join(f"• {v[lang]}" for v in dns_public.values()))+"\n\n"+get_text('update_message',lang)
-        bot.send_message(cid,txt); bot.answer_callback_query(call.id)
+        txt = get_text('dns_public_note',lang) + "\n" + "\n".join(f"• {v[lang]}" for v in dns_public.values())
+        bot.send_message(cid, txt)
+        msg = bot.send_message(cid, "🌐", reply_markup=dns_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
     elif data=='dns_free':
-        now=time.time(); uid_str=str(uid)
+        now=time.time()
+        uid_str=str(uid)
         if uid_str in db["dns_free"]:
             rem=6*3600-(now-db["dns_free"][uid_str])
             if rem>0:
-                h=int(rem//3600); m=int((rem%3600)//60); ts=f"{h} ساعت {m} دقیقه"
-                bot.send_message(cid,get_text('dns_free_active',lang).format(time=ts),parse_mode='Markdown')
-                bot.answer_callback_query(call.id); return
-            else: del db["dns_free"][uid_str]; save_data()
-        db["dns_free"][uid_str]=now; save_data()
-        bot.send_message(cid,get_text('dns_free_active',lang).format(time="6 ساعت 0 دقیقه"),parse_mode='Markdown')
-        bot.answer_callback_query(call.id,"✅ تست رایگان فعال شد!" if lang=='fa' else fancy_text("✅ Free test activated!"))
-    elif data in ['wire_vpn','wire_dns']:
-        bot.send_message(cid,get_text('prices_update',lang)); bot.answer_callback_query(call.id)
-    elif data=='codm_referral':
-        u=get_user(uid); bot.send_message(cid,get_text('referral_link',lang).format(bot=BOT_USERNAME,ref=u["ref_code"]),parse_mode='Markdown')
+                h=int(rem//3600)
+                m=int((rem%3600)//60)
+                ts = f"{h}h {m}m" if lang=='en' else f"{h} ساعت {m} دقیقه"
+                bot.send_message(cid, get_text('dns_free_active',lang).format(time=ts), parse_mode='Markdown')
+                msg = bot.send_message(cid, "🌐", reply_markup=dns_keyboard(lang))
+                db["users"][str(uid)]["last_msg"] = msg.message_id
+                save_data()
+                bot.answer_callback_query(call.id)
+                return
+            else:
+                del db["dns_free"][uid_str]
+                save_data()
+        
+        db["dns_free"][uid_str]=now
+        save_data()
+        ts = "6h 0m" if lang=='en' else "6 ساعت 0 دقیقه"
+        bot.send_message(cid, get_text('dns_free_active',lang).format(time=ts), parse_mode='Markdown')
+        msg = bot.send_message(cid, "🌐", reply_markup=dns_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id, "✅ فعال شد!" if lang=='fa' else "✅ Activated!")
+        
+    elif data in ['wire_vpn', 'wire_dns']:
+        bot.send_message(cid, get_text('prices_update',lang))
+        msg = bot.send_message(cid, "🔐", reply_markup=wireguard_keyboard(lang))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
         bot.answer_callback_query(call.id)
-    elif data=='codm_free':
-        if not is_member(uid): bot.answer_callback_query(call.id,get_text('not_member',lang),show_alert=True); return
-        cnt=count_successful_referrals(uid)
-        if cnt>=5:
-            if not get_user(uid)["claimed"]["free_account"]:
-                bot.send_message(cid,get_text('account_credentials',lang),parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"]["free_account"]=True; save_data()
-                bot.answer_callback_query(call.id,"✅ اکانت با موفقیت ارسال شد!")
-            else: bot.send_message(cid,"⚠️ شما قبلاً این اکانت را دریافت کرده‌اید." if lang=='fa' else fancy_text("⚠️ You have already claimed this account."))
-        else: bot.send_message(cid,get_text('codm_free_locked',lang).format(count=cnt))
-    elif data=='codm_artery':
-        if not is_member(uid): bot.answer_callback_query(call.id,get_text('not_member',lang),show_alert=True); return
-        cnt=count_successful_referrals(uid)
-        if cnt>=10:
-            if not get_user(uid)["claimed"]["artery"]:
-                bot.send_message(cid,get_text('account_credentials',lang),parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"]["artery"]=True; save_data()
-                bot.answer_callback_query(call.id,"✅ اکانت Artery ارسال شد!")
-            else: bot.send_message(cid,"⚠️ شما قبلاً این اکانت را دریافت کرده‌اید.")
-        else: bot.send_message(cid,get_text('codm_artery_locked',lang).format(count=cnt))
-    elif data=='codm_vivan':
-        if not is_member(uid): bot.answer_callback_query(call.id,get_text('not_member',lang),show_alert=True); return
-        cnt=count_successful_referrals(uid)
-        if cnt>=15:
-            if not get_user(uid)["claimed"]["vivan"]:
-                bot.send_message(cid,get_text('account_credentials',lang),parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"]["vivan"]=True; save_data()
-                bot.answer_callback_query(call.id,"✅ اکانت Vivan Harris ارسال شد!")
-            else: bot.send_message(cid,"⚠️ شما قبلاً این اکانت را دریافت کرده‌اید.")
-        else: bot.send_message(cid,get_text('codm_vivan_locked',lang).format(count=cnt))
+        
+    elif data=='codm_referral':
+        u=get_user(uid)
+        bot.send_message(cid, get_text('referral_link',lang).format(bot=BOT_USERNAME, ref=u["ref_code"]), parse_mode='Markdown')
+        msg = bot.send_message(cid, "🆓", reply_markup=codm_keyboard(lang, uid))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
+        
+    elif data in ['codm_free', 'codm_artery', 'codm_vivan']:
+        if not is_member(uid):
+            bot.answer_callback_query(call.id, get_text('not_member',lang), show_alert=True)
+            # برگشت به منوی کالاف
+            msg = bot.send_message(cid, "🆓", reply_markup=codm_keyboard(lang, uid))
+            db["users"][str(uid)]["last_msg"] = msg.message_id
+            save_data()
+            return
+            
+        cnt = count_successful_referrals(uid)
+        required = {'codm_free':5, 'codm_artery':10, 'codm_vivan':15}
+        claim_key = {'codm_free':'free_account', 'codm_artery':'artery', 'codm_vivan':'vivan'}
+        
+        if cnt >= required[data]:
+            if not get_user(uid)["claimed"][claim_key[data]]:
+                bot.send_message(cid, get_text('account_credentials',lang), parse_mode='Markdown')
+                db["users"][str(uid)]["claimed"][claim_key[data]] = True
+                save_data()
+                bot.answer_callback_query(call.id, "✅ ارسال شد!" if lang=='fa' else "✅ Sent!")
+            else:
+                bot.send_message(cid, get_text('already_claimed',lang))
+                bot.answer_callback_query(call.id)
+        else:
+            bot.answer_callback_query(call.id, f"نیاز به {required[data]} دعوت" if lang=='fa' else f"Need {required[data]} invites", show_alert=True)
+        
+        # برگشت به منوی کالاف
+        msg = bot.send_message(cid, "🆓", reply_markup=codm_keyboard(lang, uid))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        
     elif data=='codm_combo':
-        if not is_member(uid): bot.answer_callback_query(call.id,get_text('not_member',lang),show_alert=True); return
-        if is_member(uid):
-            bot.send_message(cid,get_text('codm_combo_locked',lang).format(admin=ADMIN_ID),parse_mode='Markdown')
+        if not is_member(uid):
+            bot.answer_callback_query(call.id, get_text('not_member',lang), show_alert=True)
+        else:
+            bot.send_message(cid, f"👤 {ADMIN_ID}")
             bot.answer_callback_query(call.id)
-        else: bot.answer_callback_query(call.id,get_text('not_member',lang),show_alert=True)
-    elif data.startswith('vip_') or data.startswith('free_') or data.startswith('gaming_'):
-        bot.send_message(cid,get_text('update_message',lang)); bot.answer_callback_query(call.id)
+        
+        msg = bot.send_message(cid, "🆓", reply_markup=codm_keyboard(lang, uid))
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        
+    elif data.startswith(('vip_', 'free_', 'gaming_')):
+        bot.send_message(cid, get_text('update',lang))
+        # برگشت به منوی مربوطه
+        if data.startswith('vip_'):
+            msg = bot.send_message(cid, "💎", reply_markup=build_category_menu(vip_files,'vip',lang))
+        elif data.startswith('free_'):
+            msg = bot.send_message(cid, "🎁", reply_markup=build_category_menu(free_files,'free',lang))
+        else:
+            msg = bot.send_message(cid, "🎮", reply_markup=build_category_menu(gaming_clips,'gaming',lang))
+        
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        bot.answer_callback_query(call.id)
 
-print("🚀 Bot is running with ULTRA PREMIUM features...")
+print("🚀 Bot is running...")
 bot.polling(none_stop=True, interval=0, timeout=30)
