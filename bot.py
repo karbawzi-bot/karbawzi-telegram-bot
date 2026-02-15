@@ -4,7 +4,11 @@ from datetime import datetime
 
 TOKEN = os.environ.get('BOT_TOKEN', '8415766472:AAEWgokNh5qAlgds-1BdmmooPh6dXBKeF9w')
 bot = telebot.TeleBot(TOKEN)
-CHANNEL1, CHANNEL2, ADMIN_ID, BOT_USERNAME = 'Karbawzi1File', 'Karbawzi1Trust', '@Karbawzi1PV', 'KarbawziUPDbot'
+
+CHANNEL1 = 'Karbawzi1File'
+CHANNEL2 = 'Karbawzi1Trust'
+ADMIN_ID = '@Karbawzi1PV'
+BOT_USERNAME = 'KarbawziUPDbot'
 
 def fancy_text(t):
     m = {'A':'𝙰','B':'𝙱','C':'𝙲','D':'𝙳','E':'𝙴','F':'𝙵','G':'𝙶','H':'𝙷','I':'𝙸','J':'𝙹','K':'𝙺','L':'𝙻','M':'𝙼','N':'𝙽','O':'𝙾','P':'𝙿','Q':'𝚀','R':'𝚁','S':'𝚂','T':'𝚃','U':'𝚄','V':'𝚅','W':'𝚆','X':'𝚇','Y':'𝚈','Z':'𝚉',
@@ -21,7 +25,7 @@ MOTIVATION_EN = [
 ]
 
 def random_motivation(lang):
-    return random.choice(MOTIVATION_FA if lang == 'fa' else MOTIVATION_EN)
+    return random.choice(MOTIVATION_FA if lang=='fa' else MOTIVATION_EN)
 
 DATA_FILE = 'bot_data.json'
 
@@ -92,12 +96,10 @@ def delete_previous_message(uid, cid):
 
 def delete_update_message(uid, cid):
     try:
-        uid_str = str(uid)
-        uid_data = db["users"][uid_str]
-        uid_up = uid_data.get("update_msg_id")
-        if uid_up:
-            bot.delete_message(cid, uid_up)
-            uid_data["update_msg_id"] = None
+        up = db["users"][str(uid)].get("update_msg_id")
+        if up:
+            bot.delete_message(cid, up)
+            db["users"][str(uid)]["update_msg_id"] = None
             save_data()
     except:
         pass
@@ -108,65 +110,87 @@ def send_new_message(uid, cid, text, reply_markup=None):
     msg = bot.send_message(cid, text, reply_markup=reply_markup, parse_mode='Markdown')
     db["users"][str(uid)]["last_msg"] = msg.message_id
     save_data()
-    return msg
 
 def send_update_message(uid, cid, text):
     delete_update_message(uid, cid)
     msg = bot.send_message(cid, text, parse_mode='Markdown')
     db["users"][str(uid)]["update_msg_id"] = msg.message_id
     save_data()
-    return msg
 
 def send_main_menu(uid, cid, lang):
     delete_update_message(uid, cid)
+    txt = get_text('welcome_main', lang)
     user = get_user(uid)
-    main_text = get_text('welcome_main', lang)
-
     last = user.get("last_msg")
     if last:
         try:
-            bot.edit_message_text(
-                chat_id=cid,
-                message_id=last,
-                text=main_text,
-                reply_markup=main_menu_keyboard(lang),
-                parse_mode='Markdown'
-            )
+            bot.edit_message_text(txt, cid, last, reply_markup=main_menu_keyboard(lang), parse_mode='Markdown')
             return
-        except Exception:
-            pass  # اگر نشد، جدید می‌فرستیم
-
-    msg = bot.send_message(cid, main_text, reply_markup=main_menu_keyboard(lang), parse_mode='Markdown')
+        except:
+            pass
+    msg = bot.send_message(cid, txt, reply_markup=main_menu_keyboard(lang), parse_mode='Markdown')
     user["last_msg"] = msg.message_id
     save_data()
 
 # ────────────────────────────────────────────────
-# اینجا باید دیکشنری get_text کامل رو از کد قبلی خودت بذاری
-# من فقط چندتا نمونه گذاشتم – بقیه رو جایگزین کن
+# متن‌ها (اینجا همه رو گذاشتم – اگر چیزی کم بود بگو اضافه کنم)
+
 def get_text(key, lang, **kwargs):
     texts = {
         'promotion': {
-            'fa': "✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌\n\n🔥 karbawzi UPD\nفراتر از یه بات ساده...\nاینجا فقط بات نیست، یک گوشه از هزاران رد پای من هست.\n\n👤 ادمین: @Karbawzi1PV\n📢 کانال اول: @Karbawzi1File\n🔒 کانال دوم: @Karbawzi1Trust\n\nما موندگاریم، چون متفاوتیم.",
-            'en': fancy_text("✨ KARBAWZI PREMIUM\n\n🔥 karbawzi UPD\nMore than a simple bot...\nThis is not just a bot, it's a corner of thousands of my footprints.\n\n👤 Admin: @Karbawzi1PV\n📢 Channel 1: @Karbawzi1File\n🔒 Channel 2: @Karbawzi1Trust\n\nWe stay, because we are different.")
+            'fa': "✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌\n\n🔥 karbawzi UPD\nفراتر از یه بات ساده...\n\n👤 ادمین: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust\n\nما موندگاریم، چون متفاوتیم.",
+            'en': fancy_text("✨ KARBAWZI PREMIUM\n\n🔥 karbawzi UPD\nMore than a simple bot...\n\n👤 Admin: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust\n\nWe stay, because we are different.")
         },
         'choose_lang': {
             'fa': '🌍 زبان خود را انتخاب کنید:',
             'en': fancy_text('🌍 Choose your language:')
         },
         'welcome_main': {
-            'fa': '✨ به پنل اصلی خوش اومدی!',
-            'en': fancy_text('✨ Welcome to Main Panel!')
+            'fa': '✨ به پنل اصلی خوش آمدید! 🚀\n\nلطفاً گزینه مورد نظر را انتخاب کنید.',
+            'en': fancy_text('✨ Welcome to Main Panel! 🚀\n\nPlease choose an option.')
         },
         'updating_ui': {
             'fa': '🔄 در حال بروزرسانی سورس برای بهبود رابط کاربری...\n\n⏳ لطفاً صبر کنید.',
             'en': fancy_text('🔄 Updating source for better UI...\n\n⏳ Please wait.')
         },
-        # بقیه کلیدها (dns_free_active , referral_link , account_credentials و ...) رو از کد قبلی خودت اینجا کپی کن
+        'dns_free_active': {
+            'fa': '✅ تست رایگان فعال\n\nپرایمری: `78.157.53.52`\nثانویه: `78.157.53.219`\n\n⏳ {time} باقی‌مانده',
+            'en': fancy_text('✅ Free test active\n\nPrimary: `78.157.53.52`\nSecondary: `78.157.53.219`\n\n⏳ {time} left')
+        },
+        'dns_free_req': {
+            'fa': '❌ برای فعال‌سازی تست رایگان حداقل ۲ دعوت موفق نیاز است.\nوضعیت فعلی: {cnt}/2',
+            'en': fancy_text('❌ Need at least 2 successful invites for free test.\nCurrent: {cnt}/2')
+        },
+        'referral_link': {
+            'fa': '🔗 لینک معرفی شما:\n`https://t.me/{bot}?start={ref}`',
+            'en': fancy_text('🔗 Your referral link:\n`https://t.me/{bot}?start={ref}`')
+        },
+        'account_credentials': {
+            'fa': '📋 اکانت تست\n📧 `test@gmail.com`\n🔑 `test.`',
+            'en': fancy_text('📋 Test account\n📧 `test@gmail.com`\n🔑 `test.`')
+        },
+        'codm_title': {'fa': '🎮 Codm Config', 'en': fancy_text('🎮 Codm Config')},
+        'currency_title': {'fa': '💱 قیمت ارز', 'en': fancy_text('💱 Currency Prices')},
+        'gameplay_title': {'fa': '🎬 گیم پلی', 'en': fancy_text('🎬 Gameplay')},
+        'dns_title': {'fa': '🌐 DNS Section', 'en': fancy_text('🌐 DNS Section')},
+        'wireguard_title': {'fa': '🔐 Wireguard Section', 'en': fancy_text('🔐 Wireguard Section')},
+        'req_msg': {
+            'fa': '❌ نیاز به {need} دعوت موفق دیگر!',
+            'en': fancy_text('❌ Need {need} more successful invites!')
+        },
+        'already_claimed': {
+            'fa': '⚠️ قبلاً دریافت کردید',
+            'en': fancy_text('⚠️ Already claimed')
+        },
+        'join_channels': {
+            'fa': '❌ ابتدا عضو کانال‌ها شوید!',
+            'en': fancy_text('❌ Join channels first!')
+        }
     }
     return texts.get(key, {}).get(lang, '').format(**kwargs)
 
 # ────────────────────────────────────────────────
-# کیبوردها (اینجا فقط چند نمونه – بقیه رو از کد قبلی کپی کن)
+# کیبوردها
 
 def language_keyboard():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -176,26 +200,27 @@ def language_keyboard():
 def main_menu_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     if lang == 'fa':
-        buttons = [
-            KeyboardButton("🎮 Codm Config"),
-            KeyboardButton("💱 قیمت ارز"),
-            KeyboardButton("🎬 گیم پلی"),
-            KeyboardButton("🌐 DNS"),
-            KeyboardButton("🔐 وایرگارد"),
-            KeyboardButton("🆓 کالاف دیوتی"),
-            KeyboardButton("🌍 تغییر زبان"),
-            KeyboardButton("📢 کانال‌ها")
+        btns = [
+            "🎮 Codm Config", "💱 قیمت ارز", "🎬 گیم پلی",
+            "🌐 DNS", "🔐 وایرگارد", "🆓 کالاف دیوتی",
+            "🌍 تغییر زبان", "📢 کانال‌ها"
         ]
     else:
-        buttons = [KeyboardButton(fancy_text(b)) for b in [
+        btns = [fancy_text(b) for b in [
             "🎮 Codm Config", "💱 Currency Prices", "🎬 Gameplay",
             "🌐 DNS", "🔐 Wireguard", "🆓 CODM",
             "🌍 Change Language", "📢 Channels"
         ]]
-    markup.add(*buttons)
+    markup.add(*[KeyboardButton(b) for b in btns])
     return markup
 
-# بقیه کیبوردها (back_keyboard, dns_keyboard, codm_config_keyboard و ...) رو از کد قبلی خودت اضافه کن
+def back_keyboard(lang):
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    txt = "🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")
+    markup.add(KeyboardButton(txt))
+    return markup
+
+# بقیه کیبوردها (dns, wireguard, codm config, currency, gameplay, codm) رو اگر خواستی اضافه کن – فعلاً ساده نگه داشتم تا تست کنی
 
 # ────────────────────────────────────────────────
 # handlerها
@@ -207,18 +232,13 @@ def start(m):
     args = m.text.split()
 
     if len(args) > 1 and args[1].startswith('ref'):
-        try:
-            rid = args[1][3:]
-            if rid != str(uid):
-                add_referral(rid, uid)
-                get_user(uid)["referred_by"] = rid
-                save_data()
-        except:
-            pass
+        rid = args[1][3:]
+        if rid != str(uid):
+            add_referral(rid, uid)
+            get_user(uid)["referred_by"] = rid
+            save_data()
 
     user = get_user(uid)
-
-    # پیام /start پاک نمی‌شود
 
     if not user["has_seen_welcome"]:
         send_new_message(uid, cid, get_text('promotion', 'fa'), language_keyboard())
@@ -238,8 +258,8 @@ def handle_messages(m):
     except:
         pass
 
-    if text in ['🇮🇷 فارسی', '🇬🇧 English']:
-        new_lang = 'fa' if text == '🇮🇷 فارسی' else 'en'
+    if text in ["🇮🇷 فارسی", "🇬🇧 English"]:
+        new_lang = 'fa' if text == "🇮🇷 فارسی" else 'en'
         update_user(uid, {"lang": new_lang})
         lang = new_lang
 
@@ -258,12 +278,39 @@ def handle_messages(m):
             send_main_menu(uid, cid, lang)
         return
 
-    if text in ["🔙 برگشت به منوی اصلی", fancy_text("🔙 Back to Main Menu")]:
+    t = text.lower()
+
+    if "برگشت" in text or "back to main" in t:
         update_user(uid, {"current_menu": "main"})
         send_main_menu(uid, cid, lang)
         return
 
-    # بقیه منطق بات (DNS, Codm Config, ارز, گیم‌پلی, کالاف و ...) رو از کد قبلی خودت اینجا ادامه بده
+    if "تغییر زبان" in text or "change language" in t:
+        send_new_message(uid, cid, get_text('choose_lang', lang), language_keyboard())
+        return
+
+    if "codm config" in t or "کالاف" in text:
+        update_user(uid, {"current_menu": "codm"})
+        send_new_message(uid, cid, get_text('codm_title', lang), back_keyboard(lang))
+        return
+
+    if "قیمت ارز" in text or "currency" in t:
+        send_new_message(uid, cid, get_text('currency_title', lang), back_keyboard(lang))
+        return
+
+    if "گیم پلی" in text or "gameplay" in t:
+        send_new_message(uid, cid, get_text('gameplay_title', lang), back_keyboard(lang))
+        return
+
+    if "dns" in t:
+        send_new_message(uid, cid, get_text('dns_title', lang), back_keyboard(lang))
+        return
+
+    if "وایرگارد" in text or "wireguard" in t:
+        send_new_message(uid, cid, get_text('wireguard_title', lang), back_keyboard(lang))
+        return
+
+    send_update_message(uid, cid, "دستور شناخته نشد.\nاز دکمه‌های منو استفاده کنید.")
 
 print("🚀 Bot is running...")
 bot.polling(none_stop=True, interval=0, timeout=30)
