@@ -38,7 +38,7 @@ def save_data():
 def get_user(uid):
     uid=str(uid)
     if uid not in db["users"]:
-        db["users"][uid]={"lang":"fa","ref_code":f"ref{uid}","referred_by":None,"referrals_list":[],"claimed":{"free_account":False,"artery":False,"vivan":False, "youtuber":False, "free_codm":False}, "last_msg": None, "current_menu": "main", "update_msg_id": None}
+        db["users"][uid]={"lang":"fa","ref_code":f"ref{uid}","referred_by":None,"referrals_list":[],"claimed":{"free_account":False,"artery":False,"vivan":False, "youtuber":False, "freefile":False, "free_codm":False}, "last_msg": None, "current_menu": "main", "update_msg_id": None}
         save_data()
     return db["users"][uid]
 def update_user(uid,data):
@@ -142,6 +142,27 @@ def get_text(key, lang, **kwargs):
         'gameplay_title': {'fa': '🎬 گیم پلی', 'en': fancy_text('🎬 Gameplay')},
         'dns_title': {'fa': '🌐 DNS Section', 'en': fancy_text('🌐 DNS Section')},
         'wireguard_title': {'fa': '🔐 Wireguard Section', 'en': fancy_text('🔐 Wireguard Section')},
+        'usd_info': {
+            'en': fancy_text('💵 **USD (United States Dollar) Detailed Information**\n\nThe US Dollar (USD) is the world\'s primary reserve currency and the most traded currency globally. As of the latest market data:\n\n📈 **Current Rate:** 1 USD = 42,000 IRR (approximate, subject to fluctuation)\n📊 **24-Hour Change:** +0.5%\n📉 **52-Week Range:** 38,000 - 45,000 IRR\n\n🔍 **Key Factors Influencing USD:**\n- Federal Reserve interest rate decisions\n- US economic indicators (GDP, employment reports)\n- Geopolitical events and global trade balances\n- Inflation trends and commodity prices (oil, gold)\n\n💡 **Trading Tips:** Monitor the US Non-Farm Payrolls report for volatility. Use stop-loss orders in forex trading to manage risks.\n\nFor real-time updates, consider integrating with financial APIs like Alpha Vantage or Yahoo Finance.\n\n🔄 Last updated: {time}')
+        },
+        'eur_info': {
+            'en': fancy_text('€ **EUR (Euro) Detailed Information**\n\nThe Euro (EUR) is the official currency of the Eurozone, used by 20 EU countries. Current insights:\n\n📈 **Current Rate:** 1 EUR = 45,500 IRR\n📊 **24-Hour Change:** -0.2%\n📉 **52-Week Range:** 41,000 - 48,000 IRR\n\n🔍 **Key Factors Influencing EUR:**\n- European Central Bank (ECB) monetary policy\n- Eurozone economic growth and inflation data\n- Brexit aftermath and EU-US trade relations\n- Energy prices and global supply chain disruptions\n\n💡 **Investment Advice:** EUR/USD pair is popular for carry trades. Watch ECB meetings for rate hike signals.\n\nStay informed with sources like Bloomberg or Reuters for in-depth analysis.\n\n🔄 Last updated: {time}')
+        },
+        'btc_info': {
+            'en': fancy_text('₿ **BTC (Bitcoin) Detailed Information**\n\nBitcoin (BTC), the pioneer cryptocurrency, continues to dominate the crypto market with its decentralized nature.\n\n📈 **Current Price:** 1 BTC = 1,800,000,000 IRR (\~$42,000 USD)\n📊 **24-Hour Change:** +3.1%\n📉 **52-Week Range:** 1,200,000,000 - 2,500,000,000 IRR\n\n🔍 **Key Factors Influencing BTC:**\n- Institutional adoption (ETFs, corporate treasuries)\n- Regulatory developments (SEC approvals, global bans)\n- Halving events and mining difficulty adjustments\n- Market sentiment from influencers and whale movements\n- Correlation with traditional assets during risk-off periods\n\n💡 **Trading Strategies:** Dollar-cost averaging (DCA) for long-term holding. Use technical analysis like RSI and moving averages for entries.\n\nResources: CoinMarketCap, TradingView for charts, and Blockchain.com for on-chain metrics.\n\n⚠️ **Risk Warning:** High volatility; invest only what you can afford to lose.\n\n🔄 Last updated: {time}')
+        },
+        'req_msg': {
+            'fa': '❌ نیاز به {need} دعوت موفق دیگر! 📈\n\n💡 هر دعوت موفق شما را به جوایز نزدیک‌تر می‌کند. 🔗 لینک معرفی را به اشتراک بگذارید.',
+            'en': fancy_text('❌ Need {need} more successful invites! 📈\n\n💡 Each successful invite brings you closer to rewards. 🔗 Share your referral link.')
+        },
+        'already_claimed': {
+            'fa': '⚠️ قبلاً دریافت کردید! 🔄\n\n💡 برای جوایز بیشتر، دعوت‌های خود را افزایش دهید.',
+            'en': fancy_text('⚠️ Already claimed! 🔄\n\n💡 Increase your invites for more rewards.')
+        },
+        'join_channels': {
+            'fa': '❌ ابتدا عضو کانال‌ها شوید! 👆\n\n📢 @{ch1}\n🔒 @{ch2}',
+            'en': fancy_text('❌ Join channels first! 👆\n\n📢 @{ch1}\n🔒 @{ch2}')
+        }
     }
     return texts.get(key, {}).get(lang, '').format(**kwargs)
 
@@ -160,6 +181,11 @@ def main_menu_keyboard(lang):
     """منوی اصلی با ریپلی کیبورد"""
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
+    back_text_fa = "🔙 برگشت به منوی اصلی"
+    back_text_en = fancy_text("🔙 Back to Main Menu")
+    change_lang_fa = "🌍 تغییر زبان"
+    change_lang_en = fancy_text("🌍 Change Language")
+    
     if lang == 'fa':
         buttons = [
             KeyboardButton("🎮 Codm Config"),
@@ -168,7 +194,7 @@ def main_menu_keyboard(lang):
             KeyboardButton("🌐 DNS"),
             KeyboardButton("🔐 وایرگارد"),
             KeyboardButton("🆓 کالاف دیوتی"),
-            KeyboardButton("🌍 تغییر زبان"),
+            KeyboardButton(change_lang_fa),
             KeyboardButton("📢 کانال‌ها")
         ]
     else:
@@ -179,7 +205,7 @@ def main_menu_keyboard(lang):
             KeyboardButton(fancy_text("🌐 DNS")),
             KeyboardButton(fancy_text("🔐 Wireguard")),
             KeyboardButton(fancy_text("🆓 CODM")),
-            KeyboardButton(fancy_text("🌍 Change Language")),
+            KeyboardButton(change_lang_en),
             KeyboardButton(fancy_text("📢 Channels"))
         ]
     
@@ -189,12 +215,15 @@ def main_menu_keyboard(lang):
 def back_keyboard(lang):
     """کیبورد برگشت به منوی اصلی"""
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
+    back_text = "🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")
+    markup.add(KeyboardButton(back_text))
     return markup
 
 def dns_keyboard(lang):
     """کیبورد بخش DNS"""
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    
+    back_text = "🔙 Back to Main Menu" if lang == 'en' else "🔙 برگشت به منوی اصلی"
     
     if lang == 'fa':
         buttons = [
@@ -204,7 +233,7 @@ def dns_keyboard(lang):
             KeyboardButton("📶 شاتل"),
             KeyboardButton("🌍 Public DNS"),
             KeyboardButton("🧪 Free Test"),
-            KeyboardButton("🔙 Back to Main Menu")
+            KeyboardButton(back_text)
         ]
     else:
         buttons = [
@@ -214,7 +243,7 @@ def dns_keyboard(lang):
             KeyboardButton(fancy_text("📶 Shatel")),
             KeyboardButton(fancy_text("🌍 Public DNS")),
             KeyboardButton(fancy_text("🧪 Free Test")),
-            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
+            KeyboardButton(fancy_text(back_text))
         ]
     
     markup.add(*buttons)
@@ -224,60 +253,62 @@ def wireguard_keyboard(lang):
     """کیبورد بخش وایرگارد"""
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
+    back_text = "🔙 Back to Main Menu" if lang == 'en' else "🔙 برگشت به منوی اصلی"
+    
     if lang == 'fa':
         buttons = [
             KeyboardButton("🔐 VPN"),
             KeyboardButton("🌐 DNS"),
-            KeyboardButton("🔙 Back to Main Menu")
+            KeyboardButton(back_text)
         ]
     else:
         buttons = [
             KeyboardButton(fancy_text("🔐 VPN")),
             KeyboardButton(fancy_text("🌐 DNS")),
-            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
+            KeyboardButton(fancy_text(back_text))
         ]
     
     markup.add(*buttons)
     return markup
 
 def codm_config_keyboard(lang):
-    """کیبورد بخش Codm Config"""
+    """کیبورد بخش Codm Config با 4 گزینه"""
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    
+    back_text = "🔙 Back to Main Menu" if lang == 'en' else "🔙 برگشت به منوی اصلی"
     
     if lang == 'fa':
         buttons = [
+            KeyboardButton("🚀 ProMax"),
+            KeyboardButton("👑 TopVIP"),
             KeyboardButton("📺 Youtuber"),
-            KeyboardButton("🆓 Free CODM"),
-            KeyboardButton("🔙 Back to Main Menu")
+            KeyboardButton("🆓 FreeFile"),
+            KeyboardButton(back_text)
         ]
     else:
         buttons = [
+            KeyboardButton(fancy_text("🚀 ProMax")),
+            KeyboardButton(fancy_text("👑 TopVIP")),
             KeyboardButton(fancy_text("📺 Youtuber")),
-            KeyboardButton(fancy_text("🆓 Free CODM")),
-            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
+            KeyboardButton(fancy_text("🆓 FreeFile")),
+            KeyboardButton(fancy_text(back_text))
         ]
     
     markup.add(*buttons)
     return markup
 
 def currency_keyboard(lang):
-    """کیبورد بخش قیمت ارز"""
+    """کیبورد بخش قیمت ارز - همیشه انگلیسی"""
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
-    if lang == 'fa':
-        buttons = [
-            KeyboardButton("💵 دلار"),
-            KeyboardButton("€ یورو"),
-            KeyboardButton("₿ بیت‌کوین"),
-            KeyboardButton("🔙 Back to Main Menu")
-        ]
-    else:
-        buttons = [
-            KeyboardButton(fancy_text("💵 USD")),
-            KeyboardButton(fancy_text("€ EUR")),
-            KeyboardButton(fancy_text("₿ BTC")),
-            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
-        ]
+    back_text = "🔙 Back to Main Menu" if lang == 'en' else "🔙 برگشت به منوی اصلی"
+    
+    buttons = [
+        KeyboardButton(fancy_text("💵 USD")),
+        KeyboardButton(fancy_text("€ EUR")),
+        KeyboardButton(fancy_text("₿ BTC")),
+        KeyboardButton(fancy_text(back_text))
+    ]
     
     markup.add(*buttons)
     return markup
@@ -286,11 +317,12 @@ def gameplay_keyboard(lang):
     """کیبورد بخش گیم پلی (30 آیتم، اما ساده)"""
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
-    # 30 دکمه نمونه، اما همه به update هدایت می‌شن
+    back_text = "🔙 Back to Main Menu" if lang == 'en' else "🔙 برگشت به منوی اصلی"
+    
     buttons = []
     for i in range(1, 31):
         if lang == 'fa':
-            btn_text = f"🎬 Gameplay {i}"
+            btn_text = f"🎬 گیم پلی {i}"
         else:
             btn_text = fancy_text(f"🎬 Gameplay {i}")
         buttons.append(KeyboardButton(btn_text))
@@ -301,7 +333,7 @@ def gameplay_keyboard(lang):
         else:
             markup.row(buttons[i])
     
-    markup.add(KeyboardButton("🔙 Back to Main Menu" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
+    markup.add(KeyboardButton(back_text if lang == 'fa' else fancy_text(back_text)))
     return markup
 
 def codm_keyboard(lang, uid):
@@ -309,6 +341,8 @@ def codm_keyboard(lang, uid):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
     is_mem = is_member(uid)
     cnt = count_successful_referrals(uid)
+    
+    back_text = "🔙 Back to Main Menu" if lang == 'en' else "🔙 برگشت به منوی اصلی"
     
     if lang == 'fa':
         free_text = f"🎮 اکانت رایگان {'✅' if is_mem else '❌'} | {cnt}/5"
@@ -319,9 +353,9 @@ def codm_keyboard(lang, uid):
             KeyboardButton(free_text),
             KeyboardButton(artery_text),
             KeyboardButton(vivan_text),
-            KeyboardButton("📋 Combo List"),
-            KeyboardButton("🔗 Referral Link"),
-            KeyboardButton("🔙 Back to Main Menu")
+            KeyboardButton("📋 لیست کمبو"),
+            KeyboardButton("🔗 لینک معرفی"),
+            KeyboardButton(back_text)
         ]
     else:
         free_text = fancy_text(f"🎮 Free Account {'✅' if is_mem else '❌'} | {cnt}/5")
@@ -334,13 +368,20 @@ def codm_keyboard(lang, uid):
             KeyboardButton(vivan_text),
             KeyboardButton(fancy_text("📋 Combo List")),
             KeyboardButton(fancy_text("🔗 Referral Link")),
-            KeyboardButton(fancy_text("🔙 Back to Main Menu"))
+            KeyboardButton(fancy_text(back_text))
         ]
     
     markup.add(*buttons)
     return markup
 
 # ========== دیکشنری‌های محتوا ==========
+
+codm_configs = {
+    'promax': {'fa': '🚀 ProMax', 'en': '🚀 ProMax'},
+    'topvip': {'fa': '👑 TopVIP', 'en': '👑 TopVIP'},
+    'youtuber': {'fa': '📺 Youtuber', 'en': '📺 Youtuber'},
+    'freefile': {'fa': '🆓 FreeFile', 'en': '🆓 FreeFile'}
+}
 
 dns_public_list = {
     'google': {'fa': '🛡️ Google DNS', 'en': '🛡️ Google DNS', 'ips': 'Primary: 8.8.8.8\nSecondary: 8.8.4.4'},
@@ -414,52 +455,58 @@ def handle_messages(m):
         send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
     
     # ===== منوی اصلی =====
-    elif text in ['🔙 برگشت به منوی اصلی', fancy_text("🔙 Back to Main Menu")]:
+    back_fa = "🔙 برگشت به منوی اصلی"
+    back_en = fancy_text("🔙 Back to Main Menu")
+    change_lang_fa = "🌍 تغییر زبان"
+    change_lang_en = fancy_text("🌍 Change Language")
+    
+    if text in [back_fa, back_en]:
         update_user(uid, {"current_menu": "main"})
         send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
     
-    elif text in ['📢 کانال‌ها', fancy_text("📢 CHANNELS")]:
-        bot.send_message(cid, f"📢 @{CHANNEL1}\n🔒 @{CHANNEL2}\n\n✅ برای دسترسی به جوایز، عضو شوید!")
+    elif text in ['📢 کانال‌ها', fancy_text("📢 Channels")]:
+        ch_msg = f"📢 @{CHANNEL1}\n🔒 @{CHANNEL2}\n\n✅ برای دسترسی به جوایز، عضو شوید!"
+        bot.send_message(cid, ch_msg)
         send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
     
-    elif text in ['🌍 تغییر زبان', fancy_text("🌍 CHANGE LANGUAGE")]:
+    elif text in [change_lang_fa, change_lang_en]:
         send_new_message(uid, cid, get_text('choose_lang', lang), language_keyboard())
     
     # ===== منوی Codm Config =====
     elif text in ['🎮 Codm Config', fancy_text("🎮 Codm Config")]:
         send_new_message(uid, cid, get_text('codm_title', lang), codm_config_keyboard(lang))
     
-    elif text in ['📺 Youtuber', fancy_text("📺 Youtuber")]:
+    elif text in [codm_configs[k]['fa'] for k in codm_configs] or text in [fancy_text(codm_configs[k]['en']) for k in codm_configs]:
         send_update_message(uid, cid, get_text('updating_ui', lang))
-        send_new_message(uid, cid, get_text('youtuber_title', lang), codm_config_keyboard(lang))
-    
-    elif text in ['🆓 Free CODM', fancy_text("🆓 Free CODM")]:
-        cnt = count_successful_referrals(uid)
-        if cnt >= 5:
-            if not user["claimed"]["free_codm"]:
-                bot.send_message(cid, get_text('account_credentials', lang), parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"]["free_codm"] = True
-                save_data()
-            else:
-                bot.send_message(cid, "⚠️ قبلاً دریافت کردید!" if lang == 'fa' else fancy_text("⚠️ Already claimed!"))
-        else:
-            bot.send_message(cid, f"❌ نیاز به {5-cnt} دعوت موفق دیگر" if lang == 'fa' else fancy_text(f"❌ Need {5-cnt} more successful invites"))
-        
-        send_new_message(uid, cid, get_text('free_codm_title', lang), codm_config_keyboard(lang))
+        send_new_message(uid, cid, get_text('codm_title', lang), codm_config_keyboard(lang))
     
     # ===== منوی قیمت ارز =====
     elif text in ['💱 قیمت ارز', fancy_text("💱 Currency Prices")]:
         send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
     
-    elif text in ['💵 دلار', fancy_text("💵 USD"), '€ یورو', fancy_text("€ EUR"), '₿ بیت‌کوین', fancy_text("₿ BTC")]:
-        send_update_message(uid, cid, get_text('updating_ui', lang))
+    elif fancy_text("💵 USD") in text:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        info = get_text('usd_info', 'en', time=now)
+        send_update_message(uid, cid, info)
+        send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
+    
+    elif fancy_text("€ EUR") in text:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        info = get_text('eur_info', 'en', time=now)
+        send_update_message(uid, cid, info)
+        send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
+    
+    elif fancy_text("₿ BTC") in text:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        info = get_text('btc_info', 'en', time=now)
+        send_update_message(uid, cid, info)
         send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
     
     # ===== منوی گیم پلی =====
     elif text in ['🎬 گیم پلی', fancy_text("🎬 Gameplay")]:
         send_new_message(uid, cid, get_text('gameplay_title', lang), gameplay_keyboard(lang))
     
-    elif text.startswith('🎬 Gameplay') or text.startswith(fancy_text('🎬 Gameplay')):
+    elif text.startswith('🎬 گیم پلی') or text.startswith(fancy_text('🎬 Gameplay')):
         send_update_message(uid, cid, get_text('updating_ui', lang))
         send_new_message(uid, cid, get_text('gameplay_title', lang), gameplay_keyboard(lang))
     
@@ -481,7 +528,8 @@ def handle_messages(m):
     elif text in ['🧪 Free Test', fancy_text("🧪 Free Test")]:
         cnt = count_successful_referrals(uid)
         if cnt < 2:
-            bot.send_message(cid, get_text('dns_free_req', lang, cnt=cnt))
+            req_msg = get_text('dns_free_req', lang, cnt=cnt)
+            send_update_message(uid, cid, req_msg)
             send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
             return
         
@@ -493,7 +541,8 @@ def handle_messages(m):
                 h = int(rem//3600)
                 m = int((rem%3600)//60)
                 ts = f"{h}ساعت {m}دقیقه" if lang == 'fa' else f"{h}h {m}m"
-                bot.send_message(cid, get_text('dns_free_active', lang, time=ts), parse_mode='Markdown')
+                active_msg = get_text('dns_free_active', lang, time=ts)
+                send_update_message(uid, cid, active_msg)
                 send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
                 return
             else:
@@ -503,7 +552,8 @@ def handle_messages(m):
         db["dns_free"][uid_str] = now
         save_data()
         ts = "۶ ساعت ۰ دقیقه" if lang == 'fa' else "6h 0m"
-        bot.send_message(cid, get_text('dns_free_active', lang, time=ts), parse_mode='Markdown')
+        active_msg = get_text('dns_free_active', lang, time=ts)
+        send_update_message(uid, cid, active_msg)
         send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
     
     # ===== منوی وایرگارد =====
@@ -523,73 +573,52 @@ def handle_messages(m):
         update_user(uid, {"current_menu": "codm"})
         send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
     
-    elif text.startswith('🎮 اکانت رایگان') or text.startswith(fancy_text('🎮 Free Account')):
+    def handle_claim(text_start, claimed_key, req_cnt):
         if not is_member(uid):
-            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید! 👆" if lang == 'fa' else fancy_text("❌ Join channels first! 👆"))
+            join_msg = get_text('join_channels', lang, ch1=CHANNEL1, ch2=CHANNEL2)
+            send_update_message(uid, cid, join_msg)
             send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
             return
-            
+        
         cnt = count_successful_referrals(uid)
-        if cnt >= 5:
-            if not user["claimed"]["free_account"]:
-                bot.send_message(cid, get_text('account_credentials', lang), parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"]["free_account"] = True
+        if cnt >= req_cnt:
+            if not user["claimed"][claimed_key]:
+                cred_msg = get_text('account_credentials', lang)
+                send_update_message(uid, cid, cred_msg)
+                db["users"][str(uid)]["claimed"][claimed_key] = True
                 save_data()
             else:
-                bot.send_message(cid, "⚠️ قبلاً دریافت کردید! 🔄" if lang == 'fa' else fancy_text("⚠️ Already claimed! 🔄"))
+                already_msg = get_text('already_claimed', lang)
+                send_update_message(uid, cid, already_msg)
         else:
-            bot.send_message(cid, f"❌ نیاز به {5-cnt} دعوت موفق دیگر! 📈" if lang == 'fa' else fancy_text(f"❌ Need {5-cnt} more successful invites! 📈"))
+            need = req_cnt - cnt
+            req_msg = get_text('req_msg', lang, need=need)
+            send_update_message(uid, cid, req_msg)
         
         send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+    
+    if text.startswith('🎮 اکانت رایگان') or text.startswith(fancy_text('🎮 Free Account')):
+        handle_claim(text, "free_account", 5)
     
     elif text.startswith('🔥 Artery') or text.startswith(fancy_text('🔥 Artery')):
-        if not is_member(uid):
-            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید! 👆" if lang == 'fa' else fancy_text("❌ Join channels first! 👆"))
-            send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
-            return
-            
-        cnt = count_successful_referrals(uid)
-        if cnt >= 10:
-            if not user["claimed"]["artery"]:
-                bot.send_message(cid, get_text('account_credentials', lang), parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"]["artery"] = True
-                save_data()
-            else:
-                bot.send_message(cid, "⚠️ قبلاً دریافت کردید! 🔄" if lang == 'fa' else fancy_text("⚠️ Already claimed! 🔄"))
-        else:
-            bot.send_message(cid, f"❌ نیاز به {10-cnt} دعوت موفق دیگر! 📈" if lang == 'fa' else fancy_text(f"❌ Need {10-cnt} more successful invites! 📈"))
-        
-        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+        handle_claim(text, "artery", 10)
     
     elif text.startswith('✨ Vivan Harris') or text.startswith(fancy_text('✨ Vivan Harris')):
-        if not is_member(uid):
-            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید! 👆" if lang == 'fa' else fancy_text("❌ Join channels first! 👆"))
-            send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
-            return
-            
-        cnt = count_successful_referrals(uid)
-        if cnt >= 15:
-            if not user["claimed"]["vivan"]:
-                bot.send_message(cid, get_text('account_credentials', lang), parse_mode='Markdown')
-                db["users"][str(uid)]["claimed"]["vivan"] = True
-                save_data()
-            else:
-                bot.send_message(cid, "⚠️ قبلاً دریافت کردید! 🔄" if lang == 'fa' else fancy_text("⚠️ Already claimed! 🔄"))
-        else:
-            bot.send_message(cid, f"❌ نیاز به {15-cnt} دعوت موفق دیگر! 📈" if lang == 'fa' else fancy_text(f"❌ Need {15-cnt} more successful invites! 📈"))
-        
-        send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
+        handle_claim(text, "vivan", 15)
     
     elif text in ['📋 لیست کمبو', fancy_text("📋 Combo List")]:
         if not is_member(uid):
-            bot.send_message(cid, "❌ ابتدا عضو کانال‌ها شوید! 👆" if lang == 'fa' else fancy_text("❌ Join channels first! 👆"))
+            join_msg = get_text('join_channels', lang, ch1=CHANNEL1, ch2=CHANNEL2)
+            send_update_message(uid, cid, join_msg)
         else:
-            bot.send_message(cid, f"👤 تماس با ادمین: {ADMIN_ID}\n\n📝 لیست کمبو به زودی در کانال‌ها!")
+            combo_msg = f"👤 تماس با ادمین: {ADMIN_ID}\n\n📝 لیست کمبو به زودی در کانال‌ها!"
+            send_update_message(uid, cid, combo_msg)
         
         send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
     
     elif text in ['🔗 لینک معرفی', fancy_text("🔗 Referral Link")]:
-        bot.send_message(cid, get_text('referral_link', lang, bot=BOT_USERNAME, ref=user["ref_code"]), parse_mode='Markdown')
+        ref_msg = get_text('referral_link', lang, bot=BOT_USERNAME, ref=user["ref_code"])
+        send_update_message(uid, cid, ref_msg)
         send_new_message(uid, cid, get_text('codm_title', lang), codm_keyboard(lang, uid))
 
 print("🚀 Karbawzi UPD Bot is running with enhanced REPLY KEYBOARD... ✨")
