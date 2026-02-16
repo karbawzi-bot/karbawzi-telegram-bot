@@ -14,23 +14,12 @@ CHANNEL2 = 'Karbawzi1Trust'
 ADMIN_ID = '@Karbawzi1PV'
 BOT_USERNAME = 'KarbawziUPDbot'
 
-def fancy_text(t):
+def fancy(t):
     m = {'A':'𝙰','B':'𝙱','C':'𝙲','D':'𝙳','E':'𝙴','F':'𝙵','G':'𝙶','H':'𝙷','I':'𝙸','J':'𝙹','K':'𝙺','L':'𝙻','M':'𝙼','N':'𝙽','O':'𝙾','P':'𝙿','Q':'𝚀','R':'𝚁','S':'𝚂','T':'𝚃','U':'𝚄','V':'𝚅','W':'𝚆','X':'𝚇','Y':'𝚈','Z':'𝚉',
          'a':'𝚊','b':'𝚋','c':'𝚌','d':'𝚍','e':'𝚎','f':'𝚏','g':'𝚐','h':'𝚑','i':'𝚒','j':'𝚓','k':'𝚔','l':'𝚕','m':'𝚖','n':'𝚗','o':'𝚘','p':'𝚙','q':'𝚚','r':'𝚛','s':'𝚜','t':'𝚝','u':'𝚞','v':'𝚟','w':'𝚠','x':'𝚡','y':'𝚢','z':'𝚣'}
     return ''.join(m.get(c, c) for c in t)
 
-MOTIVATION_FA = [
-    "「انسان همان‌طور فکر می‌کند که زندگی می‌کند، نه همان‌طور که زندگی می‌کند فکر می‌کند。」 — ریلکه",
-    "「عمیق‌ترین چاه‌ها، خاموش‌ترین آب‌ها را دارند。」 — ضرب‌المثل آلمانی",
-]
-MOTIVATION_EN = [
-    "💭 \"We are what we repeatedly do. Excellence, then, is not an act, but a habit.\" — Aristotle",
-    "💭 \"The cave you fear to enter holds the treasure you seek.\" — Joseph Campbell",
-]
-
-def random_motivation(lang):
-    return random.choice(MOTIVATION_FA if lang == 'fa' else MOTIVATION_EN)
-
+# داده‌ها
 DATA_FILE = 'bot_data.json'
 
 def load_data():
@@ -88,313 +77,176 @@ def add_referral(rid, nid):
         db["users"][rid]["referrals_list"].append(nid)
         save_data()
 
-def send_new_message(uid, cid, text, reply_markup=None):
-    msg = bot.send_message(cid, text, reply_markup=reply_markup, parse_mode='Markdown')
-    db["users"][str(uid)]["last_msg"] = msg.message_id
-    save_data()
-    return msg
+# ────────────────────────────────────────────────
+# ارسال پیام (بدون پاک کردن)
 
-def send_update_message(uid, cid, text):
-    msg = bot.send_message(cid, text, parse_mode='Markdown')
-    db["users"][str(uid)]["update_msg_id"] = msg.message_id
-    save_data()
-    return msg
+def send_message(cid, text, reply_markup=None):
+    return bot.send_message(cid, text, reply_markup=reply_markup, parse_mode='Markdown')
 
 def send_main_menu(uid, cid, lang):
-    text = get_text('welcome_main', lang)
     user = get_user(uid)
-    
+    text = "✨ به پنل اصلی خوش آمدید! 🚀\n\nلطفاً گزینه مورد نظر را انتخاب کنید." if lang == 'fa' else fancy("✨ Welcome to Main Panel! 🚀\n\nPlease choose an option.")
+
     last = user.get("last_msg")
     if last:
         try:
-            bot.edit_message_text(
-                text,
-                chat_id=cid,
-                message_id=last,
-                reply_markup=main_menu_keyboard(lang),
-                parse_mode='Markdown'
-            )
+            bot.edit_message_text(text, cid, last, reply_markup=main_menu_keyboard(lang), parse_mode='Markdown')
             return
         except:
             pass
 
-    send_new_message(uid, cid, text, main_menu_keyboard(lang))
+    msg = send_message(cid, text, main_menu_keyboard(lang))
+    user["last_msg"] = msg.message_id
+    save_data()
+
+# ────────────────────────────────────────────────
+# کیبوردهای حرفه‌ای
+
+def main_menu_keyboard(lang):
+    m = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
+    if lang == 'fa':
+        btns = ["🎮 Codm Config", "💱 قیمت ارز", "🎬 گیم پلی", "🌐 DNS + Wireguard", "🔒 VPN", "🆓 کالاف دیوتی", "🌍 تغییر زبان", "📢 کانال‌ها"]
+    else:
+        btns = [fancy(b) for b in ["🎮 Codm Config", "💱 Currency Prices", "🎬 Gameplay", "🌐 DNS + Wireguard", "🔒 VPN", "🆓 CODM", "🌍 Change Language", "📢 Channels"]]
+    m.add(*[KeyboardButton(b) for b in btns])
+    return m
+
+def codm_config_keyboard(lang):
+    m = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
+    if lang == 'fa':
+        btns = ["🚀 ProMax", "👑 TopVIP", "📺 Youtuber", "🆓 FreeFile"]
+    else:
+        btns = [fancy(b) for b in ["🚀 ProMax", "👑 TopVIP", "📺 Youtuber", "🆓 FreeFile"]]
+    m.add(*[KeyboardButton(b) for b in btns])
+    m.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy("🔙 Back to Main Menu")))
+    return m
+
+def config_action_keyboard(lang):
+    m = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
+    if lang == 'fa':
+        btns = ["📥 دریافت آپدیت", "💳 خرید اشتراک"]
+    else:
+        btns = [fancy(b) for b in ["📥 Get Update", "💳 Buy Subscription"]]
+    m.add(*[KeyboardButton(b) for b in btns])
+    m.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy("🔙 Back to Main Menu")))
+    return m
+
+def dns_keyboard(lang):
+    m = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
+    if lang == 'fa':
+        btns = ["📶 ایرانسل", "📶 همراه اول", "📶 مخابرات", "📶 شاتل", "🌍 Public DNS", "🧪 Free Test", "🔐 Wireguard DNS", "🔐 Wireguard VPN"]
+    else:
+        btns = [fancy(b) for b in ["📶 Irancell", "📶 MCI", "📶 Mokhaberat", "📶 Shatel", "🌍 Public DNS", "🧪 Free Test", "🔐 Wireguard DNS", "🔐 Wireguard VPN"]]
+    m.add(*[KeyboardButton(b) for b in btns])
+    m.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy("🔙 Back to Main Menu")))
+    return m
+
+def vpn_keyboard(lang):
+    m = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
+    if lang == 'fa':
+        btns = ["🔐 Wireguard", "🚀 V2ray"]
+    else:
+        btns = [fancy(b) for b in ["🔐 Wireguard", "🚀 V2ray"]]
+    m.add(*[KeyboardButton(b) for b in btns])
+    m.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy("🔙 Back to Main Menu")))
+    return m
+
+def currency_keyboard(lang):
+    m = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+    m.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy("🔙 Back to Main Menu")))
+    return m
+
+# ────────────────────────────────────────────────
+# متن‌ها
 
 def get_text(key, lang, **kwargs):
-    texts = {
-        'promotion': {
-            'fa': "✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌\n\n🔥 karbawzi UPD\nفراتر از یه بات ساده...\n\n👤 ادمین: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust",
-            'en': fancy_text("✨ KARBAWZI PREMIUM\n\n🔥 karbawzi UPD\nBeyond a simple bot...\n\n👤 Admin: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust")
-        },
-        'choose_lang': {
-            'fa': '🌍 زبان خود را انتخاب کنید:',
-            'en': fancy_text('🌍 Select Your Language:')
-        },
+    data = {
         'welcome_main': {
             'fa': '✨ به پنل اصلی خوش آمدید! 🚀\n\nلطفاً گزینه مورد نظر را انتخاب کنید.',
-            'en': fancy_text('✨ Welcome to Main Panel! 🚀\n\nPlease choose an option.')
+            'en': fancy('✨ Welcome to Main Panel! 🚀\n\nPlease choose an option.')
         },
         'updating': {
             'fa': '🔄 در حال بروزرسانی...\nلطفاً کمی صبر کنید.',
-            'en': fancy_text('🔄 Updating...\nPlease wait a moment.')
+            'en': fancy('🔄 Updating...\nPlease wait a moment.')
         },
-        'dns_title': {'fa': '🌐 DNS + Wireguard', 'en': fancy_text('🌐 DNS + Wireguard')},
-        'vpn_title': {'fa': '🔒 VPN', 'en': fancy_text('🔒 VPN')},
-        'config_update': {
-            'fa': '🔄 در حال بروزرسانی کانفیگ...\nبه زودی لینک جدید قرار می‌گیرد.',
-            'en': fancy_text('🔄 Config is being updated...\nNew link coming soon.')
-        },
-        'config_buy': {
-            'fa': '💳 خرید اشتراک\n\nبرای خرید با ادمین تماس بگیرید: @Karbawzi1PV',
-            'en': fancy_text('💳 Buy Subscription\n\nContact admin: @Karbawzi1PV')
-        },
-        'wireguard_dns': {
-            'fa': '🔐 Wireguard DNS\n\nپرایمری: `78.157.53.52`\nثانویه: `78.157.53.219`\n\n💡 برای استفاده، تنظیمات Wireguard را بروز کنید.',
-            'en': fancy_text('🔐 Wireguard DNS\n\nPrimary: `78.157.53.52`\nSecondary: `78.157.53.219`\n\n💡 Update Wireguard settings to use.')
-        },
-        'wireguard_vpn': {
-            'fa': '🔐 Wireguard VPN\n\nفعلاً در حال بروزرسانی...\nبه زودی کانفیگ‌های جدید.',
-            'en': fancy_text('🔐 Wireguard VPN\n\nUpdating soon...\nNew configs coming.')
-        },
-        'v2ray': {
-            'fa': '🚀 V2ray\n\nفعلاً در حال بروزرسانی...\nبه زودی سرورهای جدید.',
-            'en': fancy_text('🚀 V2ray\n\nUpdating soon...\nNew servers coming.')
-        }
+        'config_update': {'fa': '🔄 در حال بروزرسانی کانفیگ...\nبه زودی لینک جدید قرار می‌گیرد.', 'en': fancy('🔄 Config is being updated...\nNew link coming soon.')},
+        'config_buy': {'fa': '💳 خرید اشتراک\n\nبرای خرید با ادمین تماس بگیرید: @Karbawzi1PV', 'en': fancy('💳 Buy Subscription\n\nContact admin: @Karbawzi1PV')},
     }
-    return texts.get(key, {}).get(lang, '').format(**kwargs)
+    return data.get(key, {}).get(lang, '')
 
-def language_keyboard():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    markup.add(KeyboardButton("🇮🇷 فارسی"), KeyboardButton("🇬🇧 English"))
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی"))
-    return markup
-
-def main_menu_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
-    if lang == 'fa':
-        buttons = [
-            KeyboardButton("🎮 Codm Config"),
-            KeyboardButton("💱 قیمت ارز"),
-            KeyboardButton("🎬 گیم پلی"),
-            KeyboardButton("🌐 DNS + Wireguard"),
-            KeyboardButton("🔒 VPN"),
-            KeyboardButton("🆓 کالاف دیوتی"),
-            KeyboardButton("🌍 تغییر زبان"),
-            KeyboardButton("📢 کانال‌ها")
-        ]
-    else:
-        buttons = [
-            KeyboardButton(fancy_text("🎮 Codm Config")),
-            KeyboardButton(fancy_text("💱 Currency Prices")),
-            KeyboardButton(fancy_text("🎬 Gameplay")),
-            KeyboardButton(fancy_text("🌐 DNS + Wireguard")),
-            KeyboardButton(fancy_text("🔒 VPN")),
-            KeyboardButton(fancy_text("🆓 CODM")),
-            KeyboardButton(fancy_text("🌍 Change Language")),
-            KeyboardButton(fancy_text("📢 Channels"))
-        ]
-    markup.add(*buttons)
-    return markup
-
-def codm_config_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
-    if lang == 'fa':
-        buttons = [
-            KeyboardButton("🚀 ProMax"),
-            KeyboardButton("👑 TopVIP"),
-            KeyboardButton("📺 Youtuber"),
-            KeyboardButton("🆓 FreeFile")
-        ]
-    else:
-        buttons = [
-            KeyboardButton(fancy_text("🚀 ProMax")),
-            KeyboardButton(fancy_text("👑 TopVIP")),
-            KeyboardButton(fancy_text("📺 Youtuber")),
-            KeyboardButton(fancy_text("🆓 FreeFile"))
-        ]
-    markup.add(*buttons)
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
-    return markup
-
-def config_action_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
-    if lang == 'fa':
-        buttons = [
-            KeyboardButton("📥 دریافت آپدیت"),
-            KeyboardButton("💳 خرید اشتراک")
-        ]
-    else:
-        buttons = [
-            KeyboardButton(fancy_text("📥 Get Update")),
-            KeyboardButton(fancy_text("💳 Buy Subscription"))
-        ]
-    markup.add(*buttons)
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
-    return markup
-
-def dns_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
-    if lang == 'fa':
-        buttons = [
-            KeyboardButton("📶 ایرانسل"),
-            KeyboardButton("📶 همراه اول"),
-            KeyboardButton("📶 مخابرات"),
-            KeyboardButton("📶 شاتل"),
-            KeyboardButton("🌍 Public DNS"),
-            KeyboardButton("🧪 Free Test"),
-            KeyboardButton("🔐 Wireguard DNS"),
-            KeyboardButton("🔐 Wireguard VPN")
-        ]
-    else:
-        buttons = [
-            KeyboardButton(fancy_text("📶 Irancell")),
-            KeyboardButton(fancy_text("📶 MCI")),
-            KeyboardButton(fancy_text("📶 Mokhaberat")),
-            KeyboardButton(fancy_text("📶 Shatel")),
-            KeyboardButton(fancy_text("🌍 Public DNS")),
-            KeyboardButton(fancy_text("🧪 Free Test")),
-            KeyboardButton(fancy_text("🔐 Wireguard DNS")),
-            KeyboardButton(fancy_text("🔐 Wireguard VPN"))
-        ]
-    markup.add(*buttons)
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
-    return markup
-
-def vpn_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
-    if lang == 'fa':
-        buttons = [
-            KeyboardButton("🔐 Wireguard"),
-            KeyboardButton("🚀 V2ray")
-        ]
-    else:
-        buttons = [
-            KeyboardButton(fancy_text("🔐 Wireguard")),
-            KeyboardButton(fancy_text("🚀 V2ray"))
-        ]
-    markup.add(*buttons)
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
-    return markup
-
-def currency_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
-    return markup
+# ────────────────────────────────────────────────
+# handler اصلی
 
 @bot.message_handler(commands=['start'])
 def start(m):
     uid = m.from_user.id
     cid = m.chat.id
-    args = m.text.split()
-
-    if len(args) > 1 and args[1].startswith('ref'):
-        rid = args[1][3:]
-        if rid != str(uid):
-            add_referral(rid, uid)
-            get_user(uid)["referred_by"] = rid
-            save_data()
-
     user = get_user(uid)
 
+    if len(m.text.split()) > 1 and m.text.split()[1].startswith('ref'):
+        rid = m.text.split()[1][3:]
+        if rid != str(uid):
+            add_referral(rid, uid)
+
     if not user["has_seen_welcome"]:
-        send_new_message(uid, cid, get_text('promotion', 'fa'), language_keyboard())
+        send_message(cid, "✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌\n\n🔥 karbawzi UPD\nفراتر از یه بات ساده...\n\n👤 ادمین: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust", language_keyboard())
     else:
         send_main_menu(uid, cid, user["lang"])
 
 @bot.message_handler(func=lambda m: True)
-def handle_messages(m):
+def handle(m):
     uid = m.from_user.id
     cid = m.chat.id
     text = m.text.strip()
     user = get_user(uid)
-    lang = user.get("lang", 'fa')
+    lang = user["lang"]
+    t = text.lower()
 
-    t_lower = text.lower()
-
-    # انتخاب زبان
-    if text in ['🇮🇷 فارسی', '🇬🇧 English']:
-        new_lang = 'fa' if text == '🇮🇷 فارسی' else 'en'
-        update_user(uid, {"lang": new_lang})
-        lang = new_lang
-
-        now = time.time()
-        last = db["last_motivation"].get(str(uid), 0)
-        if now - last >= 3600:
-            db["last_motivation"][str(uid)] = now
-            save_data()
-            bot.send_message(cid, random_motivation(lang))
-
-        if not user["has_seen_welcome"]:
-            user["has_seen_welcome"] = True
-            save_data()
-            send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
-        else:
-            send_main_menu(uid, cid, lang)
-        return
-
-    # برگشت (مهم - همیشه اول چک بشه)
-    if "برگشت" in text or "back" in t_lower:
+    # برگشت به منوی اصلی
+    if "برگشت" in text or "back" in t:
         send_main_menu(uid, cid, lang)
         return
 
-    # تغییر زبان
-    if "تغییر زبان" in text or "change language" in t_lower:
-        send_new_message(uid, cid, get_text('choose_lang', lang), language_keyboard())
+    # Codm Config
+    if "codm" in t or "کالاف" in t or "config" in t:
+        send_message(cid, "انتخاب کانفیگ:", codm_config_keyboard(lang))
         return
 
-    # Codm Config (هر دو زبان)
-    if "codm" in t_lower or "کالاف" in text or "config" in t_lower:
-        send_new_message(uid, cid, "انتخاب کانفیگ:", codm_config_keyboard(lang))
+    # زیرمنوهای Codm
+    if any(x in t for x in ["promax", "topvip", "youtuber", "freefile", "پرومکس", "تاپ", "یوتیوبر", "فری", "pro", "top", "youtuber", "free"]):
+        send_message(cid, "عملیات:", config_action_keyboard(lang))
         return
 
-    # زیرمنوهای Codm (ProMax, TopVIP, Youtuber, FreeFile)
-    codm_options = ["promax", "topvip", "youtuber", "freefile", "پرومکس", "تاپ", "یوتیوبر", "فری", "🚀", "👑", "📺", "🆓"]
-    if any(opt in t_lower for opt in codm_options):
-        send_new_message(uid, cid, "عملیات:", config_action_keyboard(lang))
+    # دریافت آپدیت و خرید
+    if "آپدیت" in text or "update" in t:
+        send_message(cid, get_text('config_update', lang))
         return
-
-    # دریافت آپدیت / خرید اشتراک
-    if "آپدیت" in text or "update" in t_lower or "get update" in t_lower:
-        send_update_message(uid, cid, get_text('config_update', lang))
-        return
-    if "خرید" in text or "buy" in t_lower or "subscription" in t_lower:
-        send_update_message(uid, cid, get_text('config_buy', lang))
-        return
-
-    # قیمت ارز
-    if "قیمت" in text or "ارز" in text or "currency" in t_lower or "prices" in t_lower:
-        send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
-        send_update_message(uid, cid, "لیست قیمت‌ها در حال بروزرسانی...")
+    if "خرید" in text or "buy" in t or "subscription" in t:
+        send_message(cid, get_text('config_buy', lang))
         return
 
     # DNS + Wireguard
-    if "dns" in t_lower or "دی ان اس" in text or "wireguard" in t_lower:
-        send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
+    if "dns" in t or "دی ان اس" in t or "wireguard" in t:
+        send_message(cid, get_text('dns_title', lang) if 'dns_title' in get_text else "🌐 DNS + Wireguard", dns_keyboard(lang))
         return
 
     # VPN
-    if "vpn" in t_lower or "وی پی ان" in text:
-        send_new_message(uid, cid, get_text('vpn_title', lang), vpn_keyboard(lang))
+    if "vpn" in t or "وی پی ان" in t:
+        send_message(cid, get_text('vpn_title', lang) if 'vpn_title' in get_text else "🔒 VPN", vpn_keyboard(lang))
         return
 
-    # زیرمنوهای DNS
-    if "wireguard dns" in t_lower or "وایرگارد دی ان اس" in text:
-        send_update_message(uid, cid, get_text('wireguard_dns', lang))
-        return
-    if "wireguard vpn" in t_lower or "وایرگارد وی پی ان" in text:
-        send_update_message(uid, cid, get_text('wireguard_vpn', lang))
+    # قیمت ارز
+    if "ارز" in t or "currency" in t or "prices" in t:
+        send_message(cid, "💱 قیمت ارزها (انگلیسی)", currency_keyboard(lang))
+        send_message(cid, "لیست کامل ارزها در حال بروزرسانی...")
         return
 
-    # زیرمنوهای VPN
-    if "wireguard" in t_lower and "vpn" in t_lower:  # برای جلوگیری از تداخل
-        send_update_message(uid, cid, get_text('wireguard_vpn', lang))
-        return
-    if "v2ray" in t_lower:
-        send_update_message(uid, cid, get_text('v2ray', lang))
+    # تغییر زبان
+    if "تغییر زبان" in text or "change language" in t:
+        send_message(cid, get_text('choose_lang', lang), language_keyboard())
         return
 
-    # اگر هیچ‌کدام نبود
-    send_update_message(uid, cid, "دستور نامعتبر است.\nلطفاً از دکمه‌های منو استفاده کنید یا متن دکمه رو چک کنید.")
+    send_message(cid, "❌ دستور نامعتبر است.\nلطفاً از دکمه‌های کیبورد استفاده کنید.")
 
-print("🚀 Bot is running...")
+print("🚀 Karbawzi UPD Bot - نسخه حرفه‌ای و تمیز")
 bot.polling(none_stop=True, interval=0, timeout=30)
