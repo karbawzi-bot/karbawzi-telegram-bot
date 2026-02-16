@@ -1,15 +1,15 @@
+from flask import Flask, request
 import telebot
-import os
 import random
 import json
 import time
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 from datetime import datetime
 
-# ────────────────────────────────────────────────
-# تنظیمات اصلی (برای Railway و GitHub مناسب است)
-TOKEN = os.environ.get('BOT_TOKEN', '8415766472:AAEWgokNh5qAlgds-1BdmmooPh6dXBKeF9w')
-bot = telebot.TeleBot(TOKEN)
+app = Flask(__name__)
+
+TOKEN = '8415766472:AAEWgokNh5qAlgds-1BdmmooPh6dXBKeF9w'
+bot = telebot.TeleBot(TOKEN, threaded=False)
 
 CHANNEL1 = 'Karbawzi1File'
 CHANNEL2 = 'Karbawzi1Trust'
@@ -45,8 +45,11 @@ def load_data():
 db = load_data()
 
 def save_data():
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(db, f, ensure_ascii=False, indent=2)
+    try:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(db, f, ensure_ascii=False, indent=2)
+    except:
+        pass  # اگر ذخیره نشد، ادامه بده
 
 def get_user(uid):
     uid = str(uid)
@@ -68,48 +71,28 @@ def update_user(uid, data):
     db["users"][str(uid)].update(data)
     save_data()
 
-def is_member(uid):
-    try:
-        s1 = bot.get_chat_member(f'@{CHANNEL1}', uid).status
-        s2 = bot.get_chat_member(f'@{CHANNEL2}', uid).status
-        return s1 in ['member','administrator','creator'] and s2 in ['member','administrator','creator']
-    except:
-        return False
-
-def count_successful_referrals(uid):
-    c = 0
-    for ref in db["users"][str(uid)].get("referrals_list", []):
-        if is_member(int(ref)):
-            c += 1
-    return c
-
-def add_referral(rid, nid):
-    rid, nid = str(rid), str(nid)
-    if rid == nid: return
-    if nid not in db["users"][rid].get("referrals_list", []):
-        db["users"][rid]["referrals_list"].append(nid)
-        save_data()
-
-# ────────────────────────────────────────────────
-# توابع ارسال پیام (بدون پاک کردن هیچ پیامی)
-
 def send_new_message(uid, cid, text, reply_markup=None):
-    msg = bot.send_message(cid, text, reply_markup=reply_markup, parse_mode='Markdown')
-    db["users"][str(uid)]["last_msg"] = msg.message_id
-    save_data()
-    return msg
+    try:
+        msg = bot.send_message(cid, text, reply_markup=reply_markup, parse_mode='Markdown')
+        db["users"][str(uid)]["last_msg"] = msg.message_id
+        save_data()
+        return msg
+    except:
+        return None
 
 def send_update_message(uid, cid, text):
-    msg = bot.send_message(cid, text, parse_mode='Markdown')
-    db["users"][str(uid)]["update_msg_id"] = msg.message_id
-    save_data()
-    return msg
+    try:
+        msg = bot.send_message(cid, text, parse_mode='Markdown')
+        db["users"][str(uid)]["update_msg_id"] = msg.message_id
+        save_data()
+        return msg
+    except:
+        return None
 
 def send_main_menu(uid, cid, lang):
     text = get_text('welcome_main', lang)
     user = get_user(uid)
     
-    # اگر پیام قبلی وجود داره سعی می‌کنیم ویرایش کنیم (تکرار نمیشه)
     last = user.get("last_msg")
     if last:
         try:
@@ -122,12 +105,9 @@ def send_main_menu(uid, cid, lang):
             )
             return
         except:
-            pass  # اگر نشد → پیام جدید می‌فرستیم
+            pass
 
     send_new_message(uid, cid, text, main_menu_keyboard(lang))
-
-# ────────────────────────────────────────────────
-# متن‌ها (کامل و بدون نقص)
 
 def get_text(key, lang, **kwargs):
     texts = {
@@ -147,7 +127,7 @@ def get_text(key, lang, **kwargs):
             'fa': '🔄 در حال بروزرسانی...\nلطفاً کمی صبر کنید.',
             'en': fancy_text('🔄 Updating...\nPlease wait a moment.')
         },
-        'dns_title': {'fa': '🌐 DNS + Wireguard', 'en': fancy_text('🌐 DNS + Wireguard')},
+        'dns_title': {'fa': '🌐 DNS Servers', 'en': fancy_text('🌐 DNS Servers')},
         'vpn_title': {'fa': '🔒 VPN', 'en': fancy_text('🔒 VPN')},
         'config_update': {
             'fa': '🔄 در حال بروزرسانی کانفیگ...\nبه زودی لینک جدید قرار می‌گیرد.',
@@ -158,101 +138,76 @@ def get_text(key, lang, **kwargs):
             'en': fancy_text('💳 Buy Subscription\n\nContact admin: @Karbawzi1PV')
         },
         'wireguard_dns': {
-            'fa': '🔐 Wireguard DNS\n\nپرایمری: `78.157.53.52`\nثانویه: `78.157.53.219`\n\n💡 برای استفاده، تنظیمات Wireguard را بروز کنید.',
-            'en': fancy_text('🔐 Wireguard DNS\n\nPrimary: `78.157.53.52`\nSecondary: `78.157.53.219`\n\n💡 Update Wireguard settings to use.')
-        },
-        'wireguard_vpn': {
-            'fa': '🔐 Wireguard VPN\n\nفعلاً در حال بروزرسانی...\nبه زودی کانفیگ‌های جدید.',
-            'en': fancy_text('🔐 Wireguard VPN\n\nUpdating soon...\nNew configs coming.')
+            'fa': '♦️ Wireguard DNS\n\nدر حال خرید بهترین تانل‌ها و آپدیت کامل این بخش از خدمات هستیم.\n\nبه زودی بهترین تجربه را خواهید داشت.',
+            'en': fancy_text('♦️ Wireguard DNS\n\nPurchasing the best tunnels and fully updating this service section.\n\nYou will soon have the best experience.')
         },
         'v2ray': {
             'fa': '🚀 V2ray\n\nفعلاً در حال بروزرسانی...\nبه زودی سرورهای جدید.',
             'en': fancy_text('🚀 V2ray\n\nUpdating soon...\nNew servers coming.')
         },
         'currency_title': {
-            'fa': '💱 قیمت ارزها',
-            'en': fancy_text('💱 Currency Prices')
+            'fa': '💱 رمزارزها',
+            'en': fancy_text('💱 Cryptocurrencies')
         },
         'currency_list': {
-            'fa': '🔄 در حال بروزرسانی لیست قیمت‌ها...\n\n💰 دلار: ۶۲,۵۰۰ تومان\n💰 یورو: ۶۸,۳۰۰ تومان\n💰 پوند: ۷۹,۱۰۰ تومان\n\n(به‌روزرسانی هر ۳۰ دقیقه)',
-            'en': fancy_text('🔄 Updating currency prices...\n\n💰 USD: 62,500 T\n💰 EUR: 68,300 T\n💰 GBP: 79,100 T\n\n(Updates every 30 min)')
+            'fa': '🔄 در حال دریافت APIهای رسمی و بروزرسانی داده‌ها...\n\nلطفاً کمی صبور باشید. به زودی قیمت روز و تحلیل ۲۴ ساعته هر رمزارز را تقدیم شما خواهیم کرد.',
+            'en': fancy_text('🔄 Receiving official APIs and updating data...\n\nPlease be patient. Soon we will provide daily price and 24-hour analysis for each cryptocurrency.')
         },
         'codm_title': {
-            'fa': '🎮 کانفیگ‌های کالاف دیوتی موبایل',
-            'en': fancy_text('🎮 CODM Mobile Configs')
-        },
-        'gameplay_title': {
-            'fa': '🎬 گیم‌پلی‌های حرفه‌ای',
-            'en': fancy_text('🎬 Pro Gameplay')
-        },
-        'free_codm_title': {
-            'fa': '🆓 کالاف دیوتی رایگان',
-            'en': fancy_text('🆓 Free CODM')
+            'fa': '🎨 پرامپت عکاسی',
+            'en': fancy_text('🎨 Photo Prompt')
         },
         'channels': {
-            'fa': '📢 کانال‌های رسمی ما:\n\n🔹 فایل‌ها: @Karbawzi1File\n🔹 اعتماد: @Karbawzi1Trust\n\n🌟 برای پشتیبانی: @Karbawzi1PV',
-            'en': fancy_text('📢 Our Official Channels:\n\n🔹 Files: @Karbawzi1File\n🔹 Trust: @Karbawzi1Trust\n\n🌟 Support: @Karbawzi1PV')
-        }
-        # می‌تونی بقیه رو بعداً اضافه کنی
+            'fa': '📢 کانال‌های رسمی ما\n\n🔹 <a href="https://t.me/Karbawzi1File">Karbawzi1File</a>\n🔹 <a href="https://t.me/Karbawzi1Trust">Karbawzi1Trust</a>\n🔹 <a href="https://t.me/Karbawzi1PV">Karbawzi1PV</a>\n\nاین بات و کانال‌ها فقط گوشه‌ای از حضور من در وب هست.\nبخش زیادی از من هنوز در تاریکی به سر می‌برد... و قلب سیاهم را فقط معدود نفرات می‌شناسند.',
+            'en': fancy_text('📢 Official Channels\n\n🔹 <a href="https://t.me/Karbawzi1File">Karbawzi1File</a>\n🔹 <a href="https://t.me/Karbawzi1Trust">Karbawzi1Trust</a>\n🔹 <a href="https://t.me/Karbawzi1PV">Karbawzi1PV</a>\n\nThis bot & channels are just a corner of my presence on the web.\nMost of me still lives in the darkness... and only a few know my black heart.')
+        },
+        'sms_bomber': {
+            'fa': '💣 Sms Bomber\n\n🔥 در حال توسعه رابط کاربری اختصاصی و فوق حرفه‌ای\n\n🎁 هدیه ویژه: ۵ بمب رایگان برای ۱۰ کاربر اول (به زودی فعال می‌شود)',
+            'en': fancy_text('💣 Sms Bomber\n\n🔥 Developing exclusive ultra-professional UI\n\n🎁 Special gift: 5 free bombs for the first 10 users (coming soon)')
+        },
+        'magic_font': {
+            'fa': '✨ Magic Font / زیباسازی متن\n\nمتن خود را وارد کنید (فارسی یا انگلیسی):\n\nپس از ارسال، متن زیباسازی شده را دریافت خواهید کرد.',
+            'en': fancy_text('✨ Magic Font\n\nEnter your text (Persian or English):')
+        },
+        'magic_font_closed': {
+            'fa': '🌑 فعلاً این قابلیت بسته است.\n\nبه زودی با نسخه کامل و تاریک بازگشایی می‌شود.',
+            'en': fancy_text('🌑 This feature is currently closed.\n\nIt will be opened soon with the full dark version.')
+        },
+        'public_dns_info': {
+            'fa': '🌍 **Public DNS Servers** (لیست کامل و تست‌شده)\n\n• Cloudflare → Primary: `1.1.1.1` | Secondary: `1.0.0.1`\n• Google → Primary: `8.8.8.8` | Secondary: `8.8.4.4`\n• Quad9 → Primary: `9.9.9.9` | Secondary: `149.112.112.112`\n• OpenDNS → Primary: `208.67.222.222` | Secondary: `208.67.220.220`\n• Level3 → Primary: `209.244.0.3` | Secondary: `209.244.0.4`\n• Comodo Secure → Primary: `8.26.56.26` | Secondary: `8.20.247.20`\n• AdGuard → Primary: `94.140.14.14` | Secondary: `94.140.15.15`\n• NextDNS → Primary: `45.90.28.0` | Secondary: `45.90.30.0`\n\n💡 **چگونه استفاده کنید؟**\n• **اندروید**: برنامه DNS Changer از گوگل پلی نصب کنید → IPها را وارد کنید\n• **iOS**: به Settings → Wi-Fi بروید → روی i (اطلاعات) شبکه کلیک کنید → DNS را روی Manual بگذارید → IPها را اضافه کنید\n\n**نکته مهم APN**: در حال حاضر شرایط کشور ایجاب می‌کنه از طریق سیم‌کارت به بخش APN برید و از حالت دوطرفه IPv4/IPv6 به حالت IPv4 انحصاری تغییر بدید.',
+            'en': fancy_text('🌍 **Public DNS Servers** (Complete & Tested List)\n\n• Cloudflare → Primary: `1.1.1.1` | Secondary: `1.0.0.1`\n• Google → Primary: `8.8.8.8` | Secondary: `8.8.4.4`\n• Quad9 → Primary: `9.9.9.9` | Secondary: `149.112.112.112`\n• OpenDNS → Primary: `208.67.222.222` | Secondary: `208.67.220.220`\n• Level3 → Primary: `209.244.0.3` | Secondary: `209.244.0.4`\n• Comodo Secure → Primary: `8.26.56.26` | Secondary: `8.20.247.20`\n• AdGuard → Primary: `94.140.14.14` | Secondary: `94.140.15.15`\n• NextDNS → Primary: `45.90.28.0` | Secondary: `45.90.30.0`\n\n💡 **How to use?**\n• **Android**: Install DNS Changer from Google Play → Enter IPs\n• **iOS**: Settings → Wi-Fi → i → DNS Manual → Add IPs\n\n**APN Note**: In current conditions, go to APN settings via SIM card and change from dual IPv4/IPv6 to IPv4 only.')
+        },
+        'cloud_dns_info': {
+            'fa': '☁️ **Cloud DNS**\n\nاین یکی از بهترین تجربه‌های شما از DNS می‌تواند باشه.\nدر حال حاضر در حال بررسی و ست کردن IPهای جدید در بات هستیم.\nبزودی خیلی از گزینه‌ها براتون باز خواهند شد و سرعت و پایداری بی‌نظیری تجربه خواهید کرد.',
+            'en': fancy_text('☁️ **Cloud DNS**\n\nThis can be one of your best DNS experiences.\nWe are currently testing and setting new IPs in the bot.\nSoon many options will be opened for you with unparalleled speed and stability.')
+        },
     }
-    return texts.get(key, {}).get(lang, '🔄 متن در حال آماده‌سازی...').format(**kwargs)
-
-# ────────────────────────────────────────────────
-# کیبوردها (کاملاً یکپارچه با fancy_text و بدون باگ)
-
-def language_keyboard():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    markup.add(KeyboardButton("🇮🇷 فارسی"), KeyboardButton("🇬🇧 English"))
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی"))
-    return markup
+    return texts.get(key, {}).get(lang, '🔄 در حال آماده‌سازی...').format(**kwargs)
 
 def main_menu_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
         buttons = [
-            "🎮 Codm Config", "💱 قیمت ارز",
-            "🎬 گیم پلی", "🌐 DNS + Wireguard",
-            "🔒 VPN", "🆓 کالاف دیوتی",
-            "🌍 تغییر زبان", "📢 کانال‌ها"
-        ]
-    else:
-        buttons = [
-            fancy_text("🎮 Codm Config"), fancy_text("💱 Currency Prices"),
-            fancy_text("🎬 Gameplay"), fancy_text("🌐 DNS + Wireguard"),
-            fancy_text("🔒 VPN"), fancy_text("🆓 CODM"),
-            fancy_text("🌍 Change Language"), fancy_text("📢 Channels")
-        ]
-    markup.add(*[KeyboardButton(b) for b in buttons])
-    return markup
-
-def codm_config_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
-    if lang == 'fa':
-        buttons = [
-            "🚀 ProMax", "👑 TopVIP",
-            "📺 Youtuber", "🆓 FreeFile"
+            "🎨 پرامپت عکاسی", "💱 رمزارزها",
+            "🌐 DNS Servers", "🔒 VPN",
+            "📢 کانال‌ها", "💣 Sms Bomber"
         ]
     else:
         buttons = [fancy_text(b) for b in [
-            "🚀 ProMax", "👑 TopVIP",
-            "📺 Youtuber", "🆓 FreeFile"
+            "🎨 Photo Prompt", "💱 Cryptocurrencies",
+            "🌐 DNS Servers", "🔒 VPN",
+            "📢 Channels", "💣 Sms Bomber"
         ]]
     markup.add(*[KeyboardButton(b) for b in buttons])
-    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
+    markup.add(KeyboardButton("🌍 تغییر زبان"))
     return markup
 
-def config_action_keyboard(lang):
+def prompt_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
-        buttons = [
-            "📥 دریافت آپدیت",
-            "💳 خرید اشتراک"
-        ]
+        buttons = ["📤 ارسال پرامپت", "📥 دریافت پرامپت"]
     else:
-        buttons = [fancy_text(b) for b in [
-            "📥 Get Update",
-            "💳 Buy Subscription"
-        ]]
+        buttons = [fancy_text(b) for b in ["📤 Send Prompt", "📥 Receive Prompt"]]
     markup.add(*[KeyboardButton(b) for b in buttons])
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
@@ -260,19 +215,9 @@ def config_action_keyboard(lang):
 def dns_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
-        buttons = [
-            "📶 ایرانسل", "📶 همراه اول",
-            "📶 مخابرات", "📶 شاتل",
-            "🌍 Public DNS", "🧪 Free Test",
-            "🔐 Wireguard DNS", "🔐 Wireguard VPN"
-        ]
+        buttons = ["☁️ Cloud DNS", "♦️ Wireguard DNS", "🌍 Public DNS"]
     else:
-        buttons = [fancy_text(b) for b in [
-            "📶 Irancell", "📶 MCI",
-            "📶 Mokhaberat", "📶 Shatel",
-            "🌍 Public DNS", "🧪 Free Test",
-            "🔐 Wireguard DNS", "🔐 Wireguard VPN"
-        ]]
+        buttons = [fancy_text(b) for b in ["☁️ Cloud DNS", "♦️ Wireguard DNS", "🌍 Public DNS"]]
     markup.add(*[KeyboardButton(b) for b in buttons])
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
@@ -280,115 +225,67 @@ def dns_keyboard(lang):
 def vpn_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
-        buttons = [
-            "🔐 Wireguard",
-            "🚀 V2ray"
-        ]
+        buttons = ["🚀 V2ray", "♦️ Wireguard"]
     else:
-        buttons = [fancy_text(b) for b in [
-            "🔐 Wireguard",
-            "🚀 V2ray"
-        ]]
+        buttons = [fancy_text(b) for b in ["🚀 V2ray", "♦️ Wireguard"]]
     markup.add(*[KeyboardButton(b) for b in buttons])
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
 
 def currency_keyboard(lang):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
+    if lang == 'fa':
+        buttons = ["₿ Bitcoin", "⟠ Ethereum", "🔶 Solana", "❎ XRP", "🐶 Dogecoin", "🔶 BNB", "🌟 Cardano", "🔗 Chainlink"]
+    else:
+        buttons = [fancy_text(b) for b in ["₿ Bitcoin", "⟠ Ethereum", "🔶 Solana", "❎ XRP", "🐶 Dogecoin", "🔶 BNB", "🌟 Cardano", "🔗 Chainlink"]]
+    markup.add(*[KeyboardButton(b) for b in buttons])
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
 
-# ────────────────────────────────────────────────
-# مپینگ دکمه‌ها به اکشن‌ها (برای جلوگیری از هرگونه باگ در مقایسه متن)
-
 def get_button_action(text, lang):
-    """دکمه رو به اکشن تبدیل می‌کنه - کاملاً robust"""
     actions = {
         'fa': {
-            "🎮 Codm Config": "codm_config",
-            "💱 قیمت ارز": "currency",
-            "🎬 گیم پلی": "gameplay",
-            "🌐 DNS + Wireguard": "dns_menu",
+            "🎨 پرامپت عکاسی": "prompt_menu",
+            "💱 رمزارزها": "currency",
+            "🌐 DNS Servers": "dns_menu",
             "🔒 VPN": "vpn_menu",
-            "🆓 کالاف دیوتی": "free_codm",
-            "🌍 تغییر زبان": "change_lang",
             "📢 کانال‌ها": "channels",
-            
-            # sub menus
-            "🚀 ProMax": "config_promax",
-            "👑 TopVIP": "config_topvip",
-            "📺 Youtuber": "config_youtuber",
-            "🆓 FreeFile": "config_freefile",
-            "📥 دریافت آپدیت": "get_update",
-            "💳 خرید اشتراک": "buy_sub",
-            
-            "📶 ایرانسل": "dns_irancell",
-            "📶 همراه اول": "dns_mci",
-            "📶 مخابرات": "dns_mokhaberat",
-            "📶 شاتل": "dns_shatel",
+            "💣 Sms Bomber": "sms_bomber",
+            "☁️ Cloud DNS": "dns_cloud",
+            "♦️ Wireguard DNS": "wireguard_dns",
             "🌍 Public DNS": "dns_public",
-            "🧪 Free Test": "dns_free",
-            "🔐 Wireguard DNS": "wireguard_dns",
-            "🔐 Wireguard VPN": "wireguard_vpn",
-            
-            "🔐 Wireguard": "wireguard_vpn",
             "🚀 V2ray": "v2ray",
+            "♦️ Wireguard": "wireguard",
+            "📤 ارسال پرامپت": "prompt_send",
+            "📥 دریافت پرامپت": "prompt_receive",
+            "🌍 تغییر زبان": "change_lang",
         },
-        'en': {
-            fancy_text("🎮 Codm Config"): "codm_config",
-            fancy_text("💱 Currency Prices"): "currency",
-            fancy_text("🎬 Gameplay"): "gameplay",
-            fancy_text("🌐 DNS + Wireguard"): "dns_menu",
-            fancy_text("🔒 VPN"): "vpn_menu",
-            fancy_text("🆓 CODM"): "free_codm",
-            fancy_text("🌍 Change Language"): "change_lang",
-            fancy_text("📢 Channels"): "channels",
-            
-            # sub menus
-            fancy_text("🚀 ProMax"): "config_promax",
-            fancy_text("👑 TopVIP"): "config_topvip",
-            fancy_text("📺 Youtuber"): "config_youtuber",
-            fancy_text("🆓 FreeFile"): "config_freefile",
-            fancy_text("📥 Get Update"): "get_update",
-            fancy_text("💳 Buy Subscription"): "buy_sub",
-            
-            fancy_text("📶 Irancell"): "dns_irancell",
-            fancy_text("📶 MCI"): "dns_mci",
-            fancy_text("📶 Mokhaberat"): "dns_mokhaberat",
-            fancy_text("📶 Shatel"): "dns_shatel",
-            fancy_text("🌍 Public DNS"): "dns_public",
-            fancy_text("🧪 Free Test"): "dns_free",
-            fancy_text("🔐 Wireguard DNS"): "wireguard_dns",
-            fancy_text("🔐 Wireguard VPN"): "wireguard_vpn",
-            
-            fancy_text("🔐 Wireguard"): "wireguard_vpn",
-            fancy_text("🚀 V2ray"): "v2ray",
-        }
+        'en': {fancy_text(k): v for k, v in {
+            "🎨 Photo Prompt": "prompt_menu",
+            "💱 Cryptocurrencies": "currency",
+            "🌐 DNS Servers": "dns_menu",
+            "🔒 VPN": "vpn_menu",
+            "📢 Channels": "channels",
+            "💣 Sms Bomber": "sms_bomber",
+            "☁️ Cloud DNS": "dns_cloud",
+            "♦️ Wireguard DNS": "wireguard_dns",
+            "🌍 Public DNS": "dns_public",
+            "🚀 V2ray": "v2ray",
+            "♦️ Wireguard": "wireguard",
+            "🌍 Change Language": "change_lang",
+        }.items()}
     }
     return actions.get(lang, {}).get(text.strip())
-
-# ────────────────────────────────────────────────
-# handlerها
 
 @bot.message_handler(commands=['start'])
 def start(m):
     uid = m.from_user.id
     cid = m.chat.id
-    args = m.text.split()
-
-    if len(args) > 1 and args[1].startswith('ref'):
-        rid = args[1][3:]
-        if rid != str(uid):
-            add_referral(rid, uid)
-            get_user(uid)["referred_by"] = rid
-            save_data()
-
     user = get_user(uid)
-
-    if not user["has_seen_welcome"]:
-        send_new_message(uid, cid, get_text('promotion', 'fa'), language_keyboard())
-    else:
-        send_main_menu(uid, cid, user["lang"])
+    text = get_text('promotion', 'fa') + "\n\n" + get_text('promotion_footer_fa', 'fa')
+    send_new_message(uid, cid, text, language_keyboard())
+    user["has_seen_welcome"] = True
+    save_data()
 
 @bot.message_handler(func=lambda m: True)
 def handle_messages(m):
@@ -399,99 +296,84 @@ def handle_messages(m):
     lang = user.get("lang", 'fa')
     action = get_button_action(text, lang)
 
-    # هیچ پیامی پاک نمی‌شود
-
-    # تغییر زبان
     if text in ['🇮🇷 فارسی', '🇬🇧 English']:
         new_lang = 'fa' if text == '🇮🇷 فارسی' else 'en'
         update_user(uid, {"lang": new_lang})
         lang = new_lang
-
-        now = time.time()
-        last = db["last_motivation"].get(str(uid), 0)
-        if now - last >= 3600:
-            db["last_motivation"][str(uid)] = now
-            save_data()
-            bot.send_message(cid, random_motivation(lang))
-
-        if not user["has_seen_welcome"]:
-            user["has_seen_welcome"] = True
-            save_data()
-            send_new_message(uid, cid, get_text('welcome_main', lang), main_menu_keyboard(lang))
-        else:
-            send_main_menu(uid, cid, lang)
+        send_main_menu(uid, cid, lang)
         return
 
-    # برگشت به منوی اصلی
     if "برگشت" in text or "Back" in text:
         send_main_menu(uid, cid, lang)
         return
 
-    # اکشن‌ها بر اساس مپینگ
-    if action == "codm_config":
-        send_new_message(uid, cid, get_text('codm_title', lang), codm_config_keyboard(lang))
+    if action == "prompt_menu":
+        send_new_message(uid, cid, get_text('prompt_title', lang), prompt_keyboard(lang))
         return
 
-    elif action in ["config_promax", "config_topvip", "config_youtuber"]:
-        send_new_message(uid, cid, "عملیات کانفیگ:", config_action_keyboard(lang))
+    elif action in ["prompt_send", "prompt_receive"]:
+        send_update_message(uid, cid, get_text('prompt_closed', lang))
         return
 
-    elif action == "config_freefile":
-        send_update_message(uid, cid, get_text('updating', lang))
-        return
-
-    elif action == "get_update":
-        send_update_message(uid, cid, get_text('config_update', lang))
-        return
-
-    elif action == "buy_sub":
-        send_update_message(uid, cid, get_text('config_buy', lang))
-        return
-
-    elif action == "currency":
+    if action == "currency":
         send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
-        send_update_message(uid, cid, get_text('currency_list', lang, time=datetime.now().strftime("%Y-%m-%d %H:%M")))
+        return
+
+    elif action.startswith("crypto_"):
+        send_update_message(uid, cid, get_text('currency_info', lang))
         return
 
     elif action == "dns_menu":
         send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
         return
 
-    elif action == "wireguard_dns":
-        send_update_message(uid, cid, get_text('wireguard_dns', lang))
+    elif action == "dns_public":
+        send_update_message(uid, cid, get_text('public_dns_info', lang))
         return
 
-    elif action == "wireguard_vpn":
-        send_update_message(uid, cid, get_text('wireguard_vpn', lang))
+    elif action == "dns_cloud":
+        send_update_message(uid, cid, get_text('cloud_dns_info', lang))
+        return
+
+    elif action == "wireguard_dns":
+        send_update_message(uid, cid, get_text('wireguard_dns', lang))
         return
 
     elif action == "vpn_menu":
         send_new_message(uid, cid, get_text('vpn_title', lang), vpn_keyboard(lang))
         return
 
-    elif action == "v2ray":
-        send_update_message(uid, cid, get_text('v2ray', lang))
-        return
-
-    elif action == "gameplay":
-        send_update_message(uid, cid, get_text('updating', lang))  # یا متن اختصاصی
-        return
-
-    elif action == "free_codm":
-        send_update_message(uid, cid, get_text('updating', lang))  # یا متن اختصاصی
-        return
-
-    elif action == "change_lang":
-        send_new_message(uid, cid, get_text('choose_lang', lang), language_keyboard())
+    elif action in ["v2ray", "wireguard"]:
+        send_update_message(uid, cid, get_text('vpn_message', lang))
         return
 
     elif action == "channels":
         send_update_message(uid, cid, get_text('channels', lang))
         return
 
-    # پیام پیش‌فرض (اگر هیچ اکشنی نبود)
-    send_update_message(uid, cid, "⚠️ دستور نامعتبر است.\n\nاز دکمه‌های منوی زیر استفاده کنید:")
+    elif action == "sms_bomber":
+        send_update_message(uid, cid, get_text('sms_bomber', lang))
+        return
+
+    send_update_message(uid, cid, get_text('updating', lang))
     send_main_menu(uid, cid, lang)
 
-print("🚀 Bot is running... (نسخه بهبودیافته و بدون باگ)")
-bot.polling(none_stop=True, interval=0, timeout=30)
+@app.route('/')
+def home():
+    return "بات Karbawzi webhook فعال است! 🚀"
+
+@app.route('/' + TOKEN, methods=['POST'])
+def webhook():
+    try:
+        if request.headers.get('content-type') == 'application/json':
+            json_string = request.get_data().decode('utf-8')
+            update = telebot.types.Update.de_json(json_string)
+            bot.process_new_updates([update])
+            return 'OK', 200
+        else:
+            return 'Bad request', 403
+    except Exception as e:
+        print(f"Webhook error: {e}")
+        return 'OK', 200
+
+application = app
