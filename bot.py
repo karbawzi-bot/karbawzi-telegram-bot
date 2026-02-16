@@ -173,34 +173,46 @@ def main_menu_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
         buttons = [
-            "🎮 Codm Config", "💱 قیمت ارز",
-            "🎬 گیم پلی", "🌐 DNS + Wireguard",
-            "🔒 VPN", "🆓 کالاف دیوتی",
-            "🌍 تغییر زبان", "📢 کانال‌ها"
+            KeyboardButton("🎮 Codm Config"),
+            KeyboardButton("💱 قیمت ارز"),
+            KeyboardButton("🎬 گیم پلی"),
+            KeyboardButton("🌐 DNS + Wireguard"),
+            KeyboardButton("🔒 VPN"),
+            KeyboardButton("🆓 کالاف دیوتی"),
+            KeyboardButton("🌍 تغییر زبان"),
+            KeyboardButton("📢 کانال‌ها")
         ]
     else:
-        buttons = [fancy_text(b) for b in [
-            "🎮 Codm Config", "💱 Currency Prices",
-            "🎬 Gameplay", "🌐 DNS + Wireguard",
-            "🔒 VPN", "🆓 CODM",
-            "🌍 Change Language", "📢 Channels"
-        ]]
-    markup.add(*[KeyboardButton(b) for b in buttons])
+        buttons = [
+            KeyboardButton(fancy_text("🎮 Codm Config")),
+            KeyboardButton(fancy_text("💱 Currency Prices")),
+            KeyboardButton(fancy_text("🎬 Gameplay")),
+            KeyboardButton(fancy_text("🌐 DNS + Wireguard")),
+            KeyboardButton(fancy_text("🔒 VPN")),
+            KeyboardButton(fancy_text("🆓 CODM")),
+            KeyboardButton(fancy_text("🌍 Change Language")),
+            KeyboardButton(fancy_text("📢 Channels"))
+        ]
+    markup.add(*buttons)
     return markup
 
 def codm_config_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
         buttons = [
-            "🚀 ProMax", "👑 TopVIP",
-            "📺 Youtuber", "🆓 FreeFile"
+            KeyboardButton("🚀 ProMax"),
+            KeyboardButton("👑 TopVIP"),
+            KeyboardButton("📺 Youtuber"),
+            KeyboardButton("🆓 FreeFile")
         ]
     else:
-        buttons = [fancy_text(b) for b in [
-            "🚀 ProMax", "👑 TopVIP",
-            "📺 Youtuber", "🆓 FreeFile"
-        ]]
-    markup.add(*[KeyboardButton(b) for b in buttons])
+        buttons = [
+            KeyboardButton(fancy_text("🚀 ProMax")),
+            KeyboardButton(fancy_text("👑 TopVIP")),
+            KeyboardButton(fancy_text("📺 Youtuber")),
+            KeyboardButton(fancy_text("🆓 FreeFile"))
+        ]
+    markup.add(*buttons)
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
 
@@ -208,15 +220,15 @@ def config_action_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
         buttons = [
-            "📥 دریافت آپدیت",
-            "💳 خرید اشتراک"
+            KeyboardButton("📥 دریافت آپدیت"),
+            KeyboardButton("💳 خرید اشتراک")
         ]
     else:
-        buttons = [fancy_text(b) for b in [
-            "📥 Get Update",
-            "💳 Buy Subscription"
-        ]]
-    markup.add(*[KeyboardButton(b) for b in buttons])
+        buttons = [
+            KeyboardButton(fancy_text("📥 Get Update")),
+            KeyboardButton(fancy_text("💳 Buy Subscription"))
+        ]
+    markup.add(*buttons)
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
 
@@ -224,19 +236,27 @@ def dns_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
         buttons = [
-            "📶 ایرانسل", "📶 همراه اول",
-            "📶 مخابرات", "📶 شاتل",
-            "🌍 Public DNS", "🧪 Free Test",
-            "🔐 Wireguard DNS", "🔐 Wireguard VPN"
+            KeyboardButton("📶 ایرانسل"),
+            KeyboardButton("📶 همراه اول"),
+            KeyboardButton("📶 مخابرات"),
+            KeyboardButton("📶 شاتل"),
+            KeyboardButton("🌍 Public DNS"),
+            KeyboardButton("🧪 Free Test"),
+            KeyboardButton("🔐 Wireguard DNS"),
+            KeyboardButton("🔐 Wireguard VPN")
         ]
     else:
-        buttons = [fancy_text(b) for b in [
-            "📶 Irancell", "📶 MCI",
-            "📶 Mokhaberat", "📶 Shatel",
-            "🌍 Public DNS", "🧪 Free Test",
-            "🔐 Wireguard DNS", "🔐 Wireguard VPN"
-        ]]
-    markup.add(*[KeyboardButton(b) for b in buttons])
+        buttons = [
+            KeyboardButton(fancy_text("📶 Irancell")),
+            KeyboardButton(fancy_text("📶 MCI")),
+            KeyboardButton(fancy_text("📶 Mokhaberat")),
+            KeyboardButton(fancy_text("📶 Shatel")),
+            KeyboardButton(fancy_text("🌍 Public DNS")),
+            KeyboardButton(fancy_text("🧪 Free Test")),
+            KeyboardButton(fancy_text("🔐 Wireguard DNS")),
+            KeyboardButton(fancy_text("🔐 Wireguard VPN"))
+        ]
+    markup.add(*buttons)
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
 
@@ -244,13 +264,15 @@ def vpn_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
         buttons = [
-            "🔐 Wireguard", "🚀 V2ray"
+            KeyboardButton("🔐 Wireguard"),
+            KeyboardButton("🚀 V2ray")
         ]
     else:
-        buttons = [fancy_text(b) for b in [
-            "🔐 Wireguard", "🚀 V2ray"
-        ]]
-    markup.add(*[KeyboardButton(b) for b in buttons])
+        buttons = [
+            KeyboardButton(fancy_text("🔐 Wireguard")),
+            KeyboardButton(fancy_text("🚀 V2ray"))
+        ]
+    markup.add(*buttons)
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
 
@@ -310,7 +332,7 @@ def handle_messages(m):
             send_main_menu(uid, cid, lang)
         return
 
-    # برگشت به منو اصلی
+    # برگشت (مهم - همیشه اول چک بشه)
     if "برگشت" in text or "back" in t_lower:
         send_main_menu(uid, cid, lang)
         return
@@ -320,33 +342,33 @@ def handle_messages(m):
         send_new_message(uid, cid, get_text('choose_lang', lang), language_keyboard())
         return
 
-    # Codm Config
-    if "codm config" in t_lower or "کالاف" in text:
+    # Codm Config (هر دو زبان)
+    if "codm" in t_lower or "کالاف" in text or "config" in t_lower:
         send_new_message(uid, cid, "انتخاب کانفیگ:", codm_config_keyboard(lang))
         return
 
-    # زیرمنوهای Codm Config
-    if any(x in text for x in ["promax", "topvip", "youtuber", "freefile", "پرومکس", "تاپ", "یوتیوبر", "فری", "🚀", "👑", "📺", "🆓"]):
+    # زیرمنوهای Codm (ProMax, TopVIP, Youtuber, FreeFile)
+    codm_options = ["promax", "topvip", "youtuber", "freefile", "پرومکس", "تاپ", "یوتیوبر", "فری", "🚀", "👑", "📺", "🆓"]
+    if any(opt in t_lower for opt in codm_options):
         send_new_message(uid, cid, "عملیات:", config_action_keyboard(lang))
         return
 
     # دریافت آپدیت / خرید اشتراک
-    if "دریافت آپدیت" in text or "get update" in t_lower:
+    if "آپدیت" in text or "update" in t_lower or "get update" in t_lower:
         send_update_message(uid, cid, get_text('config_update', lang))
         return
-    if "خرید اشتراک" in text or "buy subscription" in t_lower:
+    if "خرید" in text or "buy" in t_lower or "subscription" in t_lower:
         send_update_message(uid, cid, get_text('config_buy', lang))
         return
 
     # قیمت ارز
-    if "قیمت ارز" in text or "currency" in t_lower:
+    if "قیمت" in text or "ارز" in text or "currency" in t_lower or "prices" in t_lower:
         send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
-        # اینجا می‌تونی لیست ارزها رو اضافه کنی
         send_update_message(uid, cid, "لیست قیمت‌ها در حال بروزرسانی...")
         return
 
     # DNS + Wireguard
-    if "dns" in t_lower or "دی ان اس" in text:
+    if "dns" in t_lower or "دی ان اس" in text or "wireguard" in t_lower:
         send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
         return
 
@@ -364,7 +386,7 @@ def handle_messages(m):
         return
 
     # زیرمنوهای VPN
-    if "wireguard" in t_lower:
+    if "wireguard" in t_lower and "vpn" in t_lower:  # برای جلوگیری از تداخل
         send_update_message(uid, cid, get_text('wireguard_vpn', lang))
         return
     if "v2ray" in t_lower:
@@ -372,7 +394,7 @@ def handle_messages(m):
         return
 
     # اگر هیچ‌کدام نبود
-    send_update_message(uid, cid, "دستور نامعتبر است.\nلطفاً از دکمه‌های منو استفاده کنید.")
+    send_update_message(uid, cid, "دستور نامعتبر است.\nلطفاً از دکمه‌های منو استفاده کنید یا متن دکمه رو چک کنید.")
 
 print("🚀 Bot is running...")
 bot.polling(none_stop=True, interval=0, timeout=30)
