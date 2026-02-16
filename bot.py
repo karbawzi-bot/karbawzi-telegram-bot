@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, request
 import telebot
 import random
@@ -39,7 +40,8 @@ def load_data():
     try:
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except:
+    except Exception as e:
+        print(f"Load data error: {e}")
         return {"users": {}, "dns_free": {}, "last_motivation": {}}
 
 db = load_data()
@@ -48,166 +50,119 @@ def save_data():
     try:
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(db, f, ensure_ascii=False, indent=2)
-    except:
-        pass  # اگر ذخیره نشد، ادامه بده
+    except Exception as e:
+        print(f"Save data error: {e}")
 
 def get_user(uid):
     uid = str(uid)
-    if uid not in db["users"]:
-        db["users"][uid] = {
-            "lang": "fa",
-            "ref_code": f"ref{uid}",
-            "referred_by": None,
-            "referrals_list": [],
-            "claimed": {"free_account":False,"artery":False,"vivan":False,"youtuber":False,"freefile":False,"free_codm":False},
-            "last_msg": None,
-            "has_seen_welcome": False,
-            "current_menu": "main"
-        }
-        save_data()
-    return db["users"][uid]
+    try:
+        if uid not in db["users"]:
+            db["users"][uid] = {
+                "lang": "fa",
+                "ref_code": f"ref{uid}",
+                "referred_by": None,
+                "referrals_list": [],
+                "claimed": {"free_account":False,"artery":False,"vivan":False,"youtuber":False,"freefile":False,"free_codm":False},
+                "last_msg": None,
+                "has_seen_welcome": False,
+                "current_menu": "main"
+            }
+            save_data()
+        return db["users"][uid]
+    except Exception as e:
+        print(f"Get user error: {e}")
+        return {"lang": "fa", "has_seen_welcome": False}
 
 def update_user(uid, data):
-    db["users"][str(uid)].update(data)
-    save_data()
+    try:
+        db["users"][str(uid)].update(data)
+        save_data()
+    except Exception as e:
+        print(f"Update user error: {e}")
 
 def send_new_message(uid, cid, text, reply_markup=None):
     try:
         msg = bot.send_message(cid, text, reply_markup=reply_markup, parse_mode='Markdown')
-        db["users"][str(uid)]["last_msg"] = msg.message_id
+        get_user(uid)["last_msg"] = msg.message_id
         save_data()
-        return msg
-    except:
-        return None
+    except Exception as e:
+        print(f"Send message error: {e}")
 
 def send_update_message(uid, cid, text):
     try:
         msg = bot.send_message(cid, text, parse_mode='Markdown')
-        db["users"][str(uid)]["update_msg_id"] = msg.message_id
+        get_user(uid)["update_msg_id"] = msg.message_id
         save_data()
-        return msg
-    except:
-        return None
+    except Exception as e:
+        print(f"Update message error: {e}")
 
 def send_main_menu(uid, cid, lang):
-    text = get_text('welcome_main', lang)
-    user = get_user(uid)
-    
-    last = user.get("last_msg")
-    if last:
-        try:
-            bot.edit_message_text(
-                text,
-                chat_id=cid,
-                message_id=last,
-                reply_markup=main_menu_keyboard(lang),
-                parse_mode='Markdown'
-            )
-            return
-        except:
-            pass
-
-    send_new_message(uid, cid, text, main_menu_keyboard(lang))
+    try:
+        text = get_text('welcome_main', lang)
+        user = get_user(uid)
+        last = user.get("last_msg")
+        if last:
+            try:
+                bot.edit_message_text(text, chat_id=cid, message_id=last, reply_markup=main_menu_keyboard(lang), parse_mode='Markdown')
+                return
+            except:
+                pass
+        send_new_message(uid, cid, text, main_menu_keyboard(lang))
+    except Exception as e:
+        print(f"Main menu error: {e}")
 
 def get_text(key, lang, **kwargs):
     texts = {
-        'promotion': {
-            'fa': "✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌\n\n🔥 karbawzi UPD\nفراتر از یه بات ساده...\n\n👤 ادمین: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust",
-            'en': fancy_text("✨ KARBAWZI PREMIUM\n\n🔥 karbawzi UPD\nBeyond a simple bot...\n\n👤 Admin: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust")
-        },
-        'choose_lang': {
-            'fa': '🌍 زبان خود را انتخاب کنید:',
-            'en': fancy_text('🌍 Select Your Language:')
-        },
-        'welcome_main': {
-            'fa': '✨ به پنل اصلی خوش آمدید! 🚀\n\nلطفاً گزینه مورد نظر را انتخاب کنید.',
-            'en': fancy_text('✨ Welcome to Main Panel! 🚀\n\nPlease choose an option.')
-        },
-        'updating': {
-            'fa': '🔄 در حال بروزرسانی...\nلطفاً کمی صبر کنید.',
-            'en': fancy_text('🔄 Updating...\nPlease wait a moment.')
-        },
+        'promotion': {'fa': "✨ 𝐊𝐀𝐑𝐁𝐀𝐖𝐙𝐈 𝐏𝐑𝐄𝐌𝐈𝐔𝐌\n\n🔥 karbawzi UPD\nفراتر از یه بات ساده...\n\n👤 ادمین: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust", 'en': fancy_text("✨ KARBAWZI PREMIUM\n\n🔥 karbawzi UPD\nBeyond a simple bot...\n\n👤 Admin: @Karbawzi1PV\n📢 @Karbawzi1File\n🔒 @Karbawzi1Trust")},
+        'choose_lang': {'fa': '🌍 زبان خود را انتخاب کنید:', 'en': fancy_text('🌍 Select Your Language:')},
+        'welcome_main': {'fa': '✨ به پنل اصلی خوش آمدید! 🚀\n\nلطفاً گزینه مورد نظر را انتخاب کنید.', 'en': fancy_text('✨ Welcome to Main Panel! 🚀\n\nPlease choose an option.')},
+        'updating': {'fa': '🔄 در حال بروزرسانی...\nلطفاً کمی صبر کنید.', 'en': fancy_text('🔄 Updating...\nPlease wait a moment.')},
         'dns_title': {'fa': '🌐 DNS Servers', 'en': fancy_text('🌐 DNS Servers')},
+        'wireguard_dns': {'fa': '♦️ Wireguard DNS\n\nدر حال خرید بهترین تانل‌ها و آپدیت کامل این بخش از خدمات هستیم.\n\nبه زودی بهترین تجربه را خواهید داشت.', 'en': fancy_text('♦️ Wireguard DNS\n\nPurchasing the best tunnels and fully updating this service section.\n\nYou will soon have the best experience.')},
+        'currency_title': {'fa': '💱 رمزارزها', 'en': fancy_text('💱 Cryptocurrencies')},
+        'currency_info': {'fa': '🔄 در حال دریافت APIهای رسمی و بروزرسانی داده‌ها...\n\nلطفاً کمی صبور باشید. به زودی قیمت روز و تحلیل ۲۴ ساعته هر رمزارز را تقدیم شما خواهیم کرد.', 'en': fancy_text('🔄 Receiving official APIs and updating data...\n\nPlease be patient. Soon we will provide daily price and 24-hour analysis for each cryptocurrency.')},
+        'channels': {'fa': '📢 کانال‌های رسمی ما\n\n🔹 فایل‌ها: @Karbawzi1File\n🔹 اعتماد: @Karbawzi1Trust\n\n🌟 این بات و کانال‌ها فقط گوشه‌ای از آثار مثبت من در وب هست.\nبخش زیادی از من هنوز در تاریکی به سر می‌برد... و قلب سیاهم را فقط معدود نفرات می‌شناسند.', 'en': fancy_text('📢 Official Channels\n\n🔹 Files: @Karbawzi1File\n🔹 Trust: @Karbawzi1Trust\n\n🌟 This bot and channels are just a corner of my positive works on the web.\nA large part of me still lives in the dark... and only a few know my black heart.')},
+        'sms_bomber': {'fa': '💣 Sms Bomber\n\n🔥 در حال توسعه رابط کاربری اختصاصی و فوق حرفه‌ای\n\n🎁 به عنوان هدیه، ۵ بمب رایگان برای ۱۰ نفر اول فعال خواهد شد.', 'en': fancy_text('💣 Sms Bomber\n\n🔥 Developing exclusive and ultra-professional UI\n\n🎁 As a gift, 5 free bombs will be activated for the first 10 users.')},
+        'magic_font': {'fa': '✨ Magic Font / زیباسازی متن\n\nمتن خود را وارد کنید (فارسی یا انگلیسی):\n\nپس از ارسال، متن زیباسازی شده را دریافت خواهید کرد.', 'en': fancy_text('✨ Magic Font\n\nEnter your text (Persian or English):')},
+        'magic_font_closed': {'fa': '🌑 فعلاً این قابلیت بسته است.\n\nبه زودی با نسخه کامل و تاریک بازگشایی می‌شود.', 'en': fancy_text('🌑 This feature is currently closed.\n\nIt will be opened soon with the full dark version.')},
         'vpn_title': {'fa': '🔒 VPN', 'en': fancy_text('🔒 VPN')},
-        'config_update': {
-            'fa': '🔄 در حال بروزرسانی کانفیگ...\nبه زودی لینک جدید قرار می‌گیرد.',
-            'en': fancy_text('🔄 Config is being updated...\nNew link coming soon.')
-        },
-        'config_buy': {
-            'fa': '💳 خرید اشتراک\n\nبرای خرید با ادمین تماس بگیرید: @Karbawzi1PV',
-            'en': fancy_text('💳 Buy Subscription\n\nContact admin: @Karbawzi1PV')
-        },
-        'wireguard_dns': {
-            'fa': '♦️ Wireguard DNS\n\nدر حال خرید بهترین تانل‌ها و آپدیت کامل این بخش از خدمات هستیم.\n\nبه زودی بهترین تجربه را خواهید داشت.',
-            'en': fancy_text('♦️ Wireguard DNS\n\nPurchasing the best tunnels and fully updating this service section.\n\nYou will soon have the best experience.')
-        },
-        'v2ray': {
-            'fa': '🚀 V2ray\n\nفعلاً در حال بروزرسانی...\nبه زودی سرورهای جدید.',
-            'en': fancy_text('🚀 V2ray\n\nUpdating soon...\nNew servers coming.')
-        },
-        'currency_title': {
-            'fa': '💱 رمزارزها',
-            'en': fancy_text('💱 Cryptocurrencies')
-        },
-        'currency_list': {
-            'fa': '🔄 در حال دریافت APIهای رسمی و بروزرسانی داده‌ها...\n\nلطفاً کمی صبور باشید. به زودی قیمت روز و تحلیل ۲۴ ساعته هر رمزارز را تقدیم شما خواهیم کرد.',
-            'en': fancy_text('🔄 Receiving official APIs and updating data...\n\nPlease be patient. Soon we will provide daily price and 24-hour analysis for each cryptocurrency.')
-        },
-        'codm_title': {
-            'fa': '🎨 پرامپت عکاسی',
-            'en': fancy_text('🎨 Photo Prompt')
-        },
-        'channels': {
-            'fa': '📢 کانال‌های رسمی ما\n\n🔹 <a href="https://t.me/Karbawzi1File">Karbawzi1File</a>\n🔹 <a href="https://t.me/Karbawzi1Trust">Karbawzi1Trust</a>\n🔹 <a href="https://t.me/Karbawzi1PV">Karbawzi1PV</a>\n\nاین بات و کانال‌ها فقط گوشه‌ای از حضور من در وب هست.\nبخش زیادی از من هنوز در تاریکی به سر می‌برد... و قلب سیاهم را فقط معدود نفرات می‌شناسند.',
-            'en': fancy_text('📢 Official Channels\n\n🔹 <a href="https://t.me/Karbawzi1File">Karbawzi1File</a>\n🔹 <a href="https://t.me/Karbawzi1Trust">Karbawzi1Trust</a>\n🔹 <a href="https://t.me/Karbawzi1PV">Karbawzi1PV</a>\n\nThis bot & channels are just a corner of my presence on the web.\nMost of me still lives in the darkness... and only a few know my black heart.')
-        },
-        'sms_bomber': {
-            'fa': '💣 Sms Bomber\n\n🔥 در حال توسعه رابط کاربری اختصاصی و فوق حرفه‌ای\n\n🎁 هدیه ویژه: ۵ بمب رایگان برای ۱۰ کاربر اول (به زودی فعال می‌شود)',
-            'en': fancy_text('💣 Sms Bomber\n\n🔥 Developing exclusive ultra-professional UI\n\n🎁 Special gift: 5 free bombs for the first 10 users (coming soon)')
-        },
-        'magic_font': {
-            'fa': '✨ Magic Font / زیباسازی متن\n\nمتن خود را وارد کنید (فارسی یا انگلیسی):\n\nپس از ارسال، متن زیباسازی شده را دریافت خواهید کرد.',
-            'en': fancy_text('✨ Magic Font\n\nEnter your text (Persian or English):')
-        },
-        'magic_font_closed': {
-            'fa': '🌑 فعلاً این قابلیت بسته است.\n\nبه زودی با نسخه کامل و تاریک بازگشایی می‌شود.',
-            'en': fancy_text('🌑 This feature is currently closed.\n\nIt will be opened soon with the full dark version.')
-        },
-        'public_dns_info': {
-            'fa': '🌍 **Public DNS Servers** (لیست کامل و تست‌شده)\n\n• Cloudflare → Primary: `1.1.1.1` | Secondary: `1.0.0.1`\n• Google → Primary: `8.8.8.8` | Secondary: `8.8.4.4`\n• Quad9 → Primary: `9.9.9.9` | Secondary: `149.112.112.112`\n• OpenDNS → Primary: `208.67.222.222` | Secondary: `208.67.220.220`\n• Level3 → Primary: `209.244.0.3` | Secondary: `209.244.0.4`\n• Comodo Secure → Primary: `8.26.56.26` | Secondary: `8.20.247.20`\n• AdGuard → Primary: `94.140.14.14` | Secondary: `94.140.15.15`\n• NextDNS → Primary: `45.90.28.0` | Secondary: `45.90.30.0`\n\n💡 **چگونه استفاده کنید؟**\n• **اندروید**: برنامه DNS Changer از گوگل پلی نصب کنید → IPها را وارد کنید\n• **iOS**: به Settings → Wi-Fi بروید → روی i (اطلاعات) شبکه کلیک کنید → DNS را روی Manual بگذارید → IPها را اضافه کنید\n\n**نکته مهم APN**: در حال حاضر شرایط کشور ایجاب می‌کنه از طریق سیم‌کارت به بخش APN برید و از حالت دوطرفه IPv4/IPv6 به حالت IPv4 انحصاری تغییر بدید.',
-            'en': fancy_text('🌍 **Public DNS Servers** (Complete & Tested List)\n\n• Cloudflare → Primary: `1.1.1.1` | Secondary: `1.0.0.1`\n• Google → Primary: `8.8.8.8` | Secondary: `8.8.4.4`\n• Quad9 → Primary: `9.9.9.9` | Secondary: `149.112.112.112`\n• OpenDNS → Primary: `208.67.222.222` | Secondary: `208.67.220.220`\n• Level3 → Primary: `209.244.0.3` | Secondary: `209.244.0.4`\n• Comodo Secure → Primary: `8.26.56.26` | Secondary: `8.20.247.20`\n• AdGuard → Primary: `94.140.14.14` | Secondary: `94.140.15.15`\n• NextDNS → Primary: `45.90.28.0` | Secondary: `45.90.30.0`\n\n💡 **How to use?**\n• **Android**: Install DNS Changer from Google Play → Enter IPs\n• **iOS**: Settings → Wi-Fi → i → DNS Manual → Add IPs\n\n**APN Note**: In current conditions, go to APN settings via SIM card and change from dual IPv4/IPv6 to IPv4 only.')
-        },
-        'cloud_dns_info': {
-            'fa': '☁️ **Cloud DNS**\n\nاین یکی از بهترین تجربه‌های شما از DNS می‌تواند باشه.\nدر حال حاضر در حال بررسی و ست کردن IPهای جدید در بات هستیم.\nبزودی خیلی از گزینه‌ها براتون باز خواهند شد و سرعت و پایداری بی‌نظیری تجربه خواهید کرد.',
-            'en': fancy_text('☁️ **Cloud DNS**\n\nThis can be one of your best DNS experiences.\nWe are currently testing and setting new IPs in the bot.\nSoon many options will be opened for you with unparalleled speed and stability.')
-        },
+        'vpn_message': {'fa': '🔄 در حال ساخت پنل اختصاصی و جمع‌آوری تجربیات فروشنده‌ها نسبت به سرورها و پنل‌ها هستیم.\n\nبزودی کاملاً متفاوت و قدرتمند برمی‌گردیم.', 'en': fancy_text('🔄 Building dedicated panel and collecting sellers’ experiences about servers and panels.\n\nWe will return soon completely different and powerful.')},
+        'public_dns_info': {'fa': '🌍 **Public DNS Servers** (لیست کامل و تست‌شده)\n\n• Cloudflare → Primary: `1.1.1.1` | Secondary: `1.0.0.1`\n• Google → Primary: `8.8.8.8` | Secondary: `8.8.4.4`\n• Quad9 → Primary: `9.9.9.9` | Secondary: `149.112.112.112`\n• OpenDNS → Primary: `208.67.222.222` | Secondary: `208.67.220.220`\n• Level3 → Primary: `209.244.0.3` | Secondary: `209.244.0.4`\n• Comodo Secure → Primary: `8.26.56.26` | Secondary: `8.20.247.20`\n• AdGuard → Primary: `94.140.14.14` | Secondary: `94.140.15.15`\n• NextDNS → Primary: `45.90.28.0` | Secondary: `45.90.30.0`\n\n💡 **چگونه استفاده کنید؟**\n• **اندروید**: برنامه DNS Changer از گوگل پلی نصب کنید → IPها را وارد کنید.\n• **iOS**: به Settings → Wi-Fi بروید → روی i (اطلاعات) شبکه کلیک کنید → DNS را روی Manual بگذارید → IPها را اضافه کنید.', 'en': fancy_text('🌍 **Public DNS Servers** (Complete & Tested List)\n\n• Cloudflare → Primary: `1.1.1.1` | Secondary: `1.0.0.1`\n• Google → Primary: `8.8.8.8` | Secondary: `8.8.4.4`\n• Quad9 → Primary: `9.9.9.9` | Secondary: `149.112.112.112`\n• OpenDNS → Primary: `208.67.222.222` | Secondary: `208.67.220.220`\n• Level3 → Primary: `209.244.0.3` | Secondary: `209.244.0.4`\n• Comodo Secure → Primary: `8.26.56.26` | Secondary: `8.20.247.20`\n• AdGuard → Primary: `94.140.14.14` | Secondary: `94.140.15.15`\n• NextDNS → Primary: `45.90.28.0` | Secondary: `45.90.30.0`\n\n💡 **How to use?**\n• **Android**: Install DNS Changer from Google Play → Enter IPs.\n• **iOS**: Settings → Wi-Fi → i → DNS Manual → Add IPs.')},
+        'cloud_dns_info': {'fa': '☁️ **Cloud DNS**\n\nاین یکی از بهترین تجربه‌های شما از DNS می‌تواند باشد.\nدر حال حاضر در حال بررسی و ست کردن IPهای جدید در بات هستیم.\nبزودی خیلی از گزینه‌ها براتون باز خواهند شد و سرعت و پایداری بی‌نظیری تجربه خواهید کرد.', 'en': fancy_text('☁️ **Cloud DNS**\n\nThis can be one of your best DNS experiences.\nWe are currently testing and setting new IPs in the bot.\nSoon many options will be opened for you with unparalleled speed and stability.')},
     }
     return texts.get(key, {}).get(lang, '🔄 در حال آماده‌سازی...').format(**kwargs)
+
+def language_keyboard():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+    markup.add(KeyboardButton("🇮🇷 فارسی"), KeyboardButton("🇬🇧 English"))
+    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی"))
+    return markup
 
 def main_menu_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
-        buttons = [
-            "🎨 پرامپت عکاسی", "💱 رمزارزها",
-            "🌐 DNS Servers", "🔒 VPN",
-            "📢 کانال‌ها", "💣 Sms Bomber"
-        ]
+        buttons = ["🎮 Codm Config", "💱 رمزارزها", "🌐 DNS Servers", "🔒 VPN", "🆓 کالاف دیوتی", "📢 کانال‌ها", "💣 Sms Bomber"]
     else:
-        buttons = [fancy_text(b) for b in [
-            "🎨 Photo Prompt", "💱 Cryptocurrencies",
-            "🌐 DNS Servers", "🔒 VPN",
-            "📢 Channels", "💣 Sms Bomber"
-        ]]
+        buttons = [fancy_text(b) for b in ["🎮 Codm Config", "💱 Cryptocurrencies", "🌐 DNS Servers", "🔒 VPN", "🆓 CODM", "📢 Channels", "💣 Sms Bomber"]]
     markup.add(*[KeyboardButton(b) for b in buttons])
-    markup.add(KeyboardButton("🌍 تغییر زبان"))
     return markup
 
-def prompt_keyboard(lang):
+def codm_config_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
-        buttons = ["📤 ارسال پرامپت", "📥 دریافت پرامپت"]
+        buttons = ["🚀 ProMax", "👑 TopVIP", "📺 Youtuber", "🆓 FreeFile"]
     else:
-        buttons = [fancy_text(b) for b in ["📤 Send Prompt", "📥 Receive Prompt"]]
+        buttons = [fancy_text(b) for b in ["🚀 ProMax", "👑 TopVIP", "📺 Youtuber", "🆓 FreeFile"]]
+    markup.add(*[KeyboardButton(b) for b in buttons])
+    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
+    return markup
+
+def config_action_keyboard(lang):
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
+    if lang == 'fa':
+        buttons = ["📥 دریافت آپدیت", "💳 خرید اشتراک"]
+    else:
+        buttons = [fancy_text(b) for b in ["📥 Get Update", "💳 Buy Subscription"]]
     markup.add(*[KeyboardButton(b) for b in buttons])
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
@@ -245,10 +200,11 @@ def currency_keyboard(lang):
 def get_button_action(text, lang):
     actions = {
         'fa': {
-            "🎨 پرامپت عکاسی": "prompt_menu",
+            "🎮 Codm Config": "codm_config",
             "💱 رمزارزها": "currency",
             "🌐 DNS Servers": "dns_menu",
             "🔒 VPN": "vpn_menu",
+            "🆓 کالاف دیوتی": "free_codm",
             "📢 کانال‌ها": "channels",
             "💣 Sms Bomber": "sms_bomber",
             "☁️ Cloud DNS": "dns_cloud",
@@ -256,15 +212,27 @@ def get_button_action(text, lang):
             "🌍 Public DNS": "dns_public",
             "🚀 V2ray": "v2ray",
             "♦️ Wireguard": "wireguard",
-            "📤 ارسال پرامپت": "prompt_send",
-            "📥 دریافت پرامپت": "prompt_receive",
-            "🌍 تغییر زبان": "change_lang",
+            "₿ Bitcoin": "crypto_btc",
+            "⟠ Ethereum": "crypto_eth",
+            "🔶 Solana": "crypto_sol",
+            "❎ XRP": "crypto_xrp",
+            "🐶 Dogecoin": "crypto_doge",
+            "🔶 BNB": "crypto_bnb",
+            "🌟 Cardano": "crypto_ada",
+            "🔗 Chainlink": "crypto_link",
+            "🚀 ProMax": "config_promax",
+            "👑 TopVIP": "config_topvip",
+            "📺 Youtuber": "config_youtuber",
+            "🆓 FreeFile": "config_freefile",
+            "📥 دریافت آپدیت": "get_update",
+            "💳 خرید اشتراک": "buy_sub",
         },
         'en': {fancy_text(k): v for k, v in {
-            "🎨 Photo Prompt": "prompt_menu",
+            "🎮 Codm Config": "codm_config",
             "💱 Cryptocurrencies": "currency",
             "🌐 DNS Servers": "dns_menu",
             "🔒 VPN": "vpn_menu",
+            "🆓 CODM": "free_codm",
             "📢 Channels": "channels",
             "💣 Sms Bomber": "sms_bomber",
             "☁️ Cloud DNS": "dns_cloud",
@@ -272,7 +240,6 @@ def get_button_action(text, lang):
             "🌍 Public DNS": "dns_public",
             "🚀 V2ray": "v2ray",
             "♦️ Wireguard": "wireguard",
-            "🌍 Change Language": "change_lang",
         }.items()}
     }
     return actions.get(lang, {}).get(text.strip())
@@ -282,8 +249,7 @@ def start(m):
     uid = m.from_user.id
     cid = m.chat.id
     user = get_user(uid)
-    text = get_text('promotion', 'fa') + "\n\n" + get_text('promotion_footer_fa', 'fa')
-    send_new_message(uid, cid, text, language_keyboard())
+    send_new_message(uid, cid, get_text('promotion', 'fa'), language_keyboard())
     user["has_seen_welcome"] = True
     save_data()
 
@@ -307,15 +273,23 @@ def handle_messages(m):
         send_main_menu(uid, cid, lang)
         return
 
-    if action == "prompt_menu":
-        send_new_message(uid, cid, get_text('prompt_title', lang), prompt_keyboard(lang))
+    if action == "codm_config":
+        send_new_message(uid, cid, "🎮 **کانفیگ‌های کالاف دیوتی**\n\nاین بخش در حال تبدیل شدن به یک تجربه عکاسی و پرامپت حرفه‌ای است.\n\nبه زودی با بهترین کانفیگ‌ها و تصاویر سفارشی برمی‌گردیم.", codm_config_keyboard(lang))
         return
 
-    elif action in ["prompt_send", "prompt_receive"]:
-        send_update_message(uid, cid, get_text('prompt_closed', lang))
+    elif action in ["config_promax", "config_topvip", "config_youtuber", "config_freefile"]:
+        send_new_message(uid, cid, "انتخاب کنید:", config_action_keyboard(lang))
         return
 
-    if action == "currency":
+    elif action == "get_update":
+        send_update_message(uid, cid, "🔄 لینک آپدیت در حال آماده‌سازی است...\n\nبه زودی فایل مستقیم برای شما ارسال می‌شود.")
+        return
+
+    elif action == "buy_sub":
+        send_update_message(uid, cid, get_text('config_buy', lang))
+        return
+
+    elif action == "currency":
         send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
         return
 
@@ -353,6 +327,10 @@ def handle_messages(m):
 
     elif action == "sms_bomber":
         send_update_message(uid, cid, get_text('sms_bomber', lang))
+        return
+
+    elif action == "free_codm":
+        send_update_message(uid, cid, "🎮 **کالاف دیوتی رایگان**\n\nاین بخش در حال تبدیل شدن به یک تجربه عکاسی و پرامپت حرفه‌ای است.\n\nبه زودی با بهترین کانفیگ‌ها و تصاویر سفارشی برمی‌گردیم.")
         return
 
     send_update_message(uid, cid, get_text('updating', lang))
