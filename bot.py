@@ -6,8 +6,6 @@ import time
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 from datetime import datetime
 
-# ────────────────────────────────────────────────
-# تنظیمات اصلی (برای Railway و GitHub مناسب است)
 TOKEN = os.environ.get('BOT_TOKEN', '8415766472:AAEWgokNh5qAlgds-1BdmmooPh6dXBKeF9w')
 bot = telebot.TeleBot(TOKEN)
 
@@ -90,9 +88,6 @@ def add_referral(rid, nid):
         db["users"][rid]["referrals_list"].append(nid)
         save_data()
 
-# ────────────────────────────────────────────────
-# توابع ارسال پیام (بدون پاک کردن هیچ پیامی)
-
 def send_new_message(uid, cid, text, reply_markup=None):
     msg = bot.send_message(cid, text, reply_markup=reply_markup, parse_mode='Markdown')
     db["users"][str(uid)]["last_msg"] = msg.message_id
@@ -109,7 +104,6 @@ def send_main_menu(uid, cid, lang):
     text = get_text('welcome_main', lang)
     user = get_user(uid)
     
-    # اگر پیام قبلی وجود داره سعی می‌کنیم ویرایش کنیم (تکرار نمیشه)
     last = user.get("last_msg")
     if last:
         try:
@@ -122,12 +116,9 @@ def send_main_menu(uid, cid, lang):
             )
             return
         except:
-            pass  # اگر نشد → پیام جدید می‌فرستیم
+            pass
 
     send_new_message(uid, cid, text, main_menu_keyboard(lang))
-
-# ────────────────────────────────────────────────
-# متن‌ها
 
 def get_text(key, lang, **kwargs):
     texts = {
@@ -169,12 +160,8 @@ def get_text(key, lang, **kwargs):
             'fa': '🚀 V2ray\n\nفعلاً در حال بروزرسانی...\nبه زودی سرورهای جدید.',
             'en': fancy_text('🚀 V2ray\n\nUpdating soon...\nNew servers coming.')
         }
-        # می‌تونی بقیه متن‌ها رو بعداً اضافه کنی
     }
     return texts.get(key, {}).get(lang, '').format(**kwargs)
-
-# ────────────────────────────────────────────────
-# کیبوردها (کیبورد همیشه باز بمونه با دکمه Back)
 
 def language_keyboard():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
@@ -250,20 +237,18 @@ def dns_keyboard(lang):
             "🔐 Wireguard DNS", "🔐 Wireguard VPN"
         ]]
     markup.add(*[KeyboardButton(b) for b in buttons])
-    markup.add(KeyboardButton(fancy_text("🔙 Back to Main Menu") if lang == 'en' else "🔙 برگشت به منوی اصلی"))
+    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
 
 def vpn_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, row_width=2)
     if lang == 'fa':
         buttons = [
-            "🔐 Wireguard",
-            "🚀 V2ray"
+            "🔐 Wireguard", "🚀 V2ray"
         ]
     else:
         buttons = [fancy_text(b) for b in [
-            "🔐 Wireguard",
-            "🚀 V2ray"
+            "🔐 Wireguard", "🚀 V2ray"
         ]]
     markup.add(*[KeyboardButton(b) for b in buttons])
     markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
@@ -271,11 +256,8 @@ def vpn_keyboard(lang):
 
 def currency_keyboard(lang):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    markup.add(KeyboardButton(fancy_text("🔙 Back to Main Menu")))
+    markup.add(KeyboardButton("🔙 برگشت به منوی اصلی" if lang == 'fa' else fancy_text("🔙 Back to Main Menu")))
     return markup
-
-# ────────────────────────────────────────────────
-# handlerها
 
 @bot.message_handler(commands=['start'])
 def start(m):
@@ -305,8 +287,9 @@ def handle_messages(m):
     user = get_user(uid)
     lang = user.get("lang", 'fa')
 
-    # هیچ پیامی پاک نمی‌شود
+    t_lower = text.lower()
 
+    # انتخاب زبان
     if text in ['🇮🇷 فارسی', '🇬🇧 English']:
         new_lang = 'fa' if text == '🇮🇷 فارسی' else 'en'
         update_user(uid, {"lang": new_lang})
@@ -327,63 +310,69 @@ def handle_messages(m):
             send_main_menu(uid, cid, lang)
         return
 
-    if "برگشت" in text or "Back" in text:
+    # برگشت به منو اصلی
+    if "برگشت" in text or "back" in t_lower:
         send_main_menu(uid, cid, lang)
         return
 
-    if "قیمت ارز" in text or "Currency" in text:
-        send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
-        send_update_message(uid, cid, get_text('currency_list', 'en', time=datetime.now().strftime("%Y-%m-%d %H:%M")))
+    # تغییر زبان
+    if "تغییر زبان" in text or "change language" in t_lower:
+        send_new_message(uid, cid, get_text('choose_lang', lang), language_keyboard())
         return
 
-    if "Codm Config" in text:
+    # Codm Config
+    if "codm config" in t_lower or "کالاف" in text:
         send_new_message(uid, cid, "انتخاب کانفیگ:", codm_config_keyboard(lang))
         return
 
-    if text in ["🚀 ProMax", "👑 TopVIP", "📺 Youtuber", fancy_text("🚀 ProMax"), fancy_text("👑 TopVIP"), fancy_text("📺 Youtuber")]:
+    # زیرمنوهای Codm Config
+    if any(x in text for x in ["promax", "topvip", "youtuber", "freefile", "پرومکس", "تاپ", "یوتیوبر", "فری", "🚀", "👑", "📺", "🆓"]):
         send_new_message(uid, cid, "عملیات:", config_action_keyboard(lang))
         return
 
-    if "دریافت آپدیت" in text or "Get Update" in text:
+    # دریافت آپدیت / خرید اشتراک
+    if "دریافت آپدیت" in text or "get update" in t_lower:
         send_update_message(uid, cid, get_text('config_update', lang))
         return
-
-    if "خرید اشتراک" in text or "Buy Subscription" in text:
+    if "خرید اشتراک" in text or "buy subscription" in t_lower:
         send_update_message(uid, cid, get_text('config_buy', lang))
         return
 
-    if "FreeFile" in text:
-        send_update_message(uid, cid, get_text('updating', lang))
+    # قیمت ارز
+    if "قیمت ارز" in text or "currency" in t_lower:
+        send_new_message(uid, cid, get_text('currency_title', lang), currency_keyboard(lang))
+        # اینجا می‌تونی لیست ارزها رو اضافه کنی
+        send_update_message(uid, cid, "لیست قیمت‌ها در حال بروزرسانی...")
         return
 
-    if "DNS" in text:
+    # DNS + Wireguard
+    if "dns" in t_lower or "دی ان اس" in text:
         send_new_message(uid, cid, get_text('dns_title', lang), dns_keyboard(lang))
         return
 
-    if "Wireguard DNS" in text:
-        send_update_message(uid, cid, get_text('wireguard_dns', lang))
-        return
-
-    if "Wireguard VPN" in text:
-        send_update_message(uid, cid, get_text('wireguard_vpn', lang))
-        return
-
-    if "VPN" in text:
+    # VPN
+    if "vpn" in t_lower or "وی پی ان" in text:
         send_new_message(uid, cid, get_text('vpn_title', lang), vpn_keyboard(lang))
         return
 
-    if "Wireguard" in text:
+    # زیرمنوهای DNS
+    if "wireguard dns" in t_lower or "وایرگارد دی ان اس" in text:
+        send_update_message(uid, cid, get_text('wireguard_dns', lang))
+        return
+    if "wireguard vpn" in t_lower or "وایرگارد وی پی ان" in text:
         send_update_message(uid, cid, get_text('wireguard_vpn', lang))
         return
 
-    if "V2ray" in text:
+    # زیرمنوهای VPN
+    if "wireguard" in t_lower:
+        send_update_message(uid, cid, get_text('wireguard_vpn', lang))
+        return
+    if "v2ray" in t_lower:
         send_update_message(uid, cid, get_text('v2ray', lang))
         return
 
-    # بقیه بخش‌ها (گیم‌پلی، کالاف و ...) رو می‌تونی بعداً اضافه کنی
-
-    # پیام پیش‌فرض
-    send_update_message(uid, cid, "دستور نامعتبر است.\nاز دکمه‌های منو استفاده کنید.")
+    # اگر هیچ‌کدام نبود
+    send_update_message(uid, cid, "دستور نامعتبر است.\nلطفاً از دکمه‌های منو استفاده کنید.")
 
 print("🚀 Bot is running...")
 bot.polling(none_stop=True, interval=0, timeout=30)
